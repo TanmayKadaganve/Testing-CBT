@@ -1,0 +1,39 @@
+erDiagram
+    Student ||--o{ Attempt : "starts"
+    Student ||--o{ CandidateEnrollment : "enrolled in"
+    
+    Exam ||--o{ Section : "contains"
+    Exam ||--o{ Attempt : "attempted via"
+    Exam ||--o{ Round : "linked to"
+    
+    Section ||--o{ Question : "groups"
+    Question ||--o{ Option : "has"
+    
+    Attempt ||--o{ Answer : "records"
+    Option ||--o{ Answer : "selected in"
+    Question ||--o{ Answer : "for question"
+    Attempt ||--o| Feedback : "receives"
+    
+    CodingQuestion ||--o{ CodingQuestionStarterCode : "provides"
+    CodingQuestion ||--o{ TestCase : "evaluated against"
+    CodingQuestion ||--o{ CodeDraft : "drafted for"
+    CodingQuestion ||--o{ CodeSubmission : "submitted for"
+    
+    Attempt ||--o{ CodeDraft : "holds"
+    Attempt ||--o{ CodeSubmission : "contains"
+    CodeSubmission ||--o| ExecutionJob : "triggers"
+    
+    RecruitmentDrive ||--o{ Round : "structures"
+    RecruitmentDrive ||--o{ CandidateEnrollment : "enrolls"
+    
+    CandidateEnrollment ||--o{ RoundResult : "produces"
+    CandidateEnrollment ||--o| CandidatePresence : "monitored by"
+    CandidateEnrollment ||--o{ IntegrityEvent : "flags"
+    CandidateEnrollment ||--o{ InterviewAssignment : "assigned to"
+    
+    Round ||--o{ RoundResult : "evaluates"
+    Round ||--o{ InterviewAssignment : "conducts"
+    
+    InterviewTemplate ||--o{ RubricCriterion : "defines"
+    InterviewAssignment ||--o| InterviewEvaluation : "produces"
+    InterviewTemplate ||--o{ InterviewEvaluation : "grades with"

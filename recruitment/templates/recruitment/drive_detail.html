@@ -1,0 +1,143 @@
+{% extends "portal/admin_dashboard/base.html" %}
+
+{% block title %}{{ overview.drive.name }} — Drive Overview{% endblock %}
+
+{% block content %}
+{% with drive=overview.drive %}
+<div class="page-header">
+  <h1>{{ drive.name }}</h1>
+  <span class="badge badge-{{ drive.status|lower }}">{{ drive.get_status_display }}</span>
+</div>
+
+<div class="meta-row">
+  <span>Company: <strong>{{ drive.company_name }}</strong></span>
+  &nbsp;|&nbsp;
+  <span>Role: <strong>{{ drive.role }}</strong></span>
+  &nbsp;|&nbsp;
+  <span>{{ drive.start_date }} → {{ drive.end_date }}</span>
+</div>
+
+<!-- Drive State Transitions -->
+<div class="action-bar">
+  {% if drive.can_publish %}
+  <form method="post" action="{% url 'recruitment:drive_transition' drive.id %}" style="display:inline">
+    {% csrf_token %}
+    <input type="hidden" name="new_status" value="PUBLISHED">
+    <button class="btn btn-primary" type="submit">Publish Drive</button>
+  </form>
+  {% endif %}
+  {% if drive.can_activate %}
+  <form method="post" action="{% url 'recruitment:drive_transition' drive.id %}" style="display:inline">
+    {% csrf_token %}
+    <input type="hidden" name="new_status" value="ACTIVE">
+    <button class="btn btn-success" type="submit">Activate Drive</button>
+  </form>
+  {% endif %}
+  {% if drive.can_pause %}
+  <form method="post" action="{% url 'recruitment:drive_transition' drive.id %}" style="display:inline">
+    {% csrf_token %}
+    <input type="hidden" name="new_status" value="PAUSED">
+    <button class="btn btn-warning" type="submit">Pause Drive</button>
+  </form>
+  {% endif %}
+  {% if drive.can_close %}
+  <form method="post" action="{% url 'recruitment:drive_transition' drive.id %}" style="display:inline">
+    {% csrf_token %}
+    <input type="hidden" name="new_status" value="CLOSED">
+    <button class="btn btn-danger" type="submit">Close Drive</button>
+  </form>
+  {% endif %}
+  <a href="{% url 'recruitment:live_invigilator_console' drive.id %}" class="btn btn-primary" style="font-weight:600">🔴 Live Invigilator Console</a>
+  <a href="{% url 'recruitment:candidate_roster' drive.id %}" class="btn btn-outline">Candidate Roster</a>
+  <a href="{% url 'recruitment:export_results' drive.id %}" class="btn btn-outline">Export Results (Excel)</a>
+  <a href="{% url 'recruitment:integrity_events' drive.id %}" class="btn btn-outline">Integrity Events ({{ overview.unreviewed_integrity }} unreviewed)</a>
+</div>
+
+<!-- Key Metrics -->
+<div class="metrics-grid">
+  <div class="metric-card">
+    <div class="metric-value">{{ overview.total_enrolled }}</div>
+    <div class="metric-label">Total Enrolled</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-value">{{ overview.total_selected }}</div>
+    <div class="metric-label">Finally Selected</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-value">{{ overview.in_progress }}</div>
+    <div class="metric-label">In Progress</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-value">{{ overview.awaiting_evaluation }}</div>
+    <div class="metric-label">Awaiting Evaluation</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-value">{{ overview.pending_evaluations }}</div>
+    <div class="metric-label">Pending Evaluations</div>
+  </div>
+</div>
+
+<!-- Round-wise Stats -->
+<h2>Round Summary</h2>
+{% if overview.round_stats %}
+<div class="table-responsive">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Round</th>
+        <th>Type</th>
+        <th>Pass Threshold</th>
+        <th>Processed</th>
+        <th>Passed</th>
+        <th>Failed</th>
+        <th>Pending</th>
+        <th>Avg %</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for rs in overview.round_stats %}
+      <tr>
+        <td>{{ rs.round.order }}</td>
+        <td>{{ rs.round.name }}</td>
+        <td>{{ rs.round.get_round_type_display }}</td>
+        <td>{{ rs.round.pass_threshold_percent }}%</td>
+        <td>{{ rs.total }}</td>
+        <td class="text-success">{{ rs.passed }}</td>
+        <td class="text-danger">{{ rs.failed }}</td>
+        <td>{{ rs.pending }}</td>
+        <td>{% if rs.avg_percentage %}{{ rs.avg_percentage|floatformat:1 }}%{% else %}—{% endif %}</td>
+        <td>
+          <form method="post" action="{% url 'recruitment:process_round' rs.round.id %}" style="display:inline">
+            {% csrf_token %}
+            <button class="btn btn-sm btn-primary" type="submit"
+              onclick="return confirm('Process results for {{ rs.round.name }}?')">
+              Process
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-muted">No rounds configured. <a href="/admin/recruitment/round/add/">Add rounds</a> to this drive.</p>
+{% endif %}
+
+<!-- Enroll Students -->
+<h2>Quick Enroll</h2>
+<form method="post" action="{% url 'recruitment:enroll_students' drive.id %}">
+  {% csrf_token %}
+  <div class="form-group">
+    <label>USNs (one per line or comma-separated):</label>
+    <textarea name="usn_list" rows="5" style="width:100%;font-family:monospace"
+      placeholder="1RV21CS001&#10;1RV21CS002&#10;1RV21CS003"></textarea>
+  </div>
+  <button class="btn btn-success" type="submit">Enroll Students</button>
+</form>
+
+{% endwith %}
+{% endblock %}
+

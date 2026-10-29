@@ -1,0 +1,23 @@
+[Unit]
+Description=PyForgeLabs CBT Isolated Code Execution Worker Daemon
+After=network.target postgresql.service cbt-web.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=cbtadmin
+Group=cbtadmin
+WorkingDirectory=/var/www/cbt
+EnvironmentFile=/etc/cbt/cbt.env
+ExecStart=/var/www/cbt/venv/bin/python manage.py run_execution_worker --concurrency=4
+KillMode=mixed
+TimeoutStopSec=10
+Restart=always
+RestartSec=3
+
+# Process isolation
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

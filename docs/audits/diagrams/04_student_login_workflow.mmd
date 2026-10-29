@@ -1,0 +1,27 @@
+sequenceDiagram
+    autonumber
+    actor Student
+    participant Browser as Client Browser
+    participant Server as Django Auth View
+    participant DB as SQLite Database
+    participant Session as Django Session Store
+
+    Student->>Browser: Enters Roll Number / Email & Password
+    Browser->>Server: POST /login/ (CSRF Token, Credentials)
+    Server->>DB: Query Student(email/roll_number, password)
+    alt Invalid Credentials
+        Server-->>Browser: 200 OK (Render login with Error Alert)
+        Browser-->>Student: Displays "Invalid Credentials"
+    else Valid Credentials
+        Server->>DB: Check Active Attempt for Student
+        Server->>Session: Create Session (student_id, roll_number, auth_time)
+        Server-->>Browser: 302 Redirect to /instructions/ (Set-Cookie sessionid, csrftoken)
+        Browser->>Server: GET /instructions/
+        Server->>DB: Query Exam Details, Section Sequence, Rules
+        Server-->>Browser: 200 OK (Instructions Page)
+        Student->>Browser: Clicks "I Agree & Start Examination"
+        Browser->>Server: POST /start-exam/
+        Server->>DB: Create Attempt(student, exam, start_time=now(), status='IN_PROGRESS')
+        Server-->>Browser: 302 Redirect to /exam/
+        Browser-->>Student: Exam Dashboard Active (Section 1 Begins)
+    end

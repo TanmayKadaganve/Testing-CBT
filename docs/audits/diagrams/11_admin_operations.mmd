@@ -1,0 +1,37 @@
+flowchart LR
+    subgraph AdminDashboard["Admin Console & Essential Navigation"]
+        NAV["Modern Compact Sidebar"]
+        DASH["Overview & System Health"]
+    end
+
+    subgraph ExamOps["Exam Operations"]
+        EX_CONF["Create / Configure Exam"]
+        SEC_CONF["Section & Timer Setup"]
+        Q_IMPORT["Bulk Import MCQs (CSV/JSON)"]
+        COD_CONF["Coding Problems & Test Cases"]
+    end
+
+    subgraph DriveOps["Recruitment Operations"]
+        DRIVE_SETUP["Create Drive (Company, Role)"]
+        ROSTER["Candidate Roster & Bulk Upload"]
+        ROUND_CONF["Multi-Round Pipeline Config"]
+        RUBRICS["Rubrics & Interview Panels"]
+    end
+
+    subgraph LiveOps["Live Operations & Monitoring"]
+        MONITOR["Live Invigilator Grid"]
+        ALERTS["Integrity Event Feed"]
+        ACTIONS["Intervention: Warn / Terminate"]
+    end
+
+    subgraph AnalyticsOps["Results & Compliance"]
+        PROG_RUN["Run Progression Cutoffs"]
+        EXP_CSV["Export Results (CSV / Excel)"]
+        AUDIT["Immutable Audit Log Review"]
+    end
+
+    NAV --> DASH
+    NAV --> ExamOps
+    NAV --> DriveOps
+    NAV --> LiveOps
+    NAV --> AnalyticsOps

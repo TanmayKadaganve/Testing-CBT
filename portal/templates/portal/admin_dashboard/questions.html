@@ -1,0 +1,134 @@
+{% extends "portal/admin_dashboard/base.html" %}
+
+{% block title %}MCQ Questions{% endblock %}
+
+{% block breadcrumbs %}
+  <span class="cbt-breadcrumbs-separator">/</span>
+  <span class="cbt-breadcrumbs-current">MCQ Questions</span>
+{% endblock %}
+
+{% block content %}
+<div class="cbt-page-header">
+  <div class="cbt-page-title-wrap">
+    <h1>Multiple-Choice Questions</h1>
+    <p>Manage multiple-choice questions, answer choices, and correct key designations.</p>
+  </div>
+  <div class="cbt-page-actions">
+    {% if perms.portal.add_question %}
+    <a href="{% url 'admin:portal_question_add' %}" class="cbt-btn cbt-btn-primary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      Add Question
+    </a>
+    <a href="{% url 'admin:portal_question_import' %}" class="cbt-btn cbt-btn-secondary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+      Import Questions
+    </a>
+    {% endif %}
+    {% if perms.portal.view_question %}
+    <a href="{% url 'admin:portal_question_changelist' %}" class="cbt-btn cbt-btn-secondary">
+      Admin Table
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="cbt-card">
+  <!-- Search & Filter Toolbar -->
+  <form method="get" class="cbt-toolbar">
+    <div class="cbt-search-box">
+      <svg class="cbt-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" name="q" value="{{ search_query }}" placeholder="Search question text..." class="cbt-input">
+    </div>
+
+    <div class="cbt-filter-group">
+      <select name="exam_id" class="cbt-select" onchange="this.form.submit()">
+        <option value="">All Exams</option>
+        {% for exam in all_exams %}
+          <option value="{{ exam.id }}" {% if exam_filter == exam.id|stringformat:"s" %}selected{% endif %}>{{ exam.title }}</option>
+        {% endfor %}
+      </select>
+
+      <button type="submit" class="cbt-btn cbt-btn-secondary cbt-btn-sm">Filter</button>
+      {% if search_query or exam_filter %}
+        <a href="{% url 'dashboard_questions' %}" class="cbt-btn cbt-btn-secondary cbt-btn-sm" style="color:#ef4444;">Clear</a>
+      {% endif %}
+    </div>
+  </form>
+
+  <div class="cbt-table-responsive">
+    <table class="cbt-table">
+      <thead>
+        <tr>
+          <th>Order</th>
+          <th>Section / Exam</th>
+          <th>Question Statement</th>
+          <th>Marks</th>
+          <th>Options</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for q in questions %}
+          <tr>
+            <td><b>Q{{ q.order }}</b></td>
+            <td>
+              <b>{{ q.section.title }}</b><br>
+              <span style="font-size:12px;color:#64748b;">{{ q.section.exam.title }}</span>
+            </td>
+            <td style="max-width:380px;">
+              <span style="font-size:13.5px;color:#1e293b;">{{ q.text|truncatechars:140 }}</span>
+            </td>
+            <td><b>{{ q.marks }}</b> mark{{ q.marks|pluralize }}</td>
+            <td>
+              <div style="display:flex;flex-direction:column;gap:3px;font-size:12px;">
+                {% for opt in q.options.all %}
+                  <span class="cbt-option-item {% if opt.is_correct %}is-correct{% else %}is-normal{% endif %}">
+                    {% if opt.is_correct %}&#10003;{% else %}&bull;{% endif %} {{ opt.text|truncatechars:40 }}
+                  </span>
+                {% empty %}
+                  <span style="color:#ef4444;">No options configured</span>
+                {% endfor %}
+              </div>
+            </td>
+            <td>
+              <a href="/admin/portal/question/{{ q.id }}/change/" class="cbt-btn cbt-btn-secondary cbt-btn-sm">Edit</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="6">
+              <div class="cbt-empty-state">
+                <svg class="cbt-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                <div class="cbt-empty-title">No MCQ Questions Found</div>
+                <div class="cbt-empty-desc">Create MCQ questions under an MCQ section in the administration center.</div>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if questions.has_other_pages %}
+    <div class="cbt-pagination">
+      <span>Showing {{ questions.start_index }} to {{ questions.end_index }} of {{ total_count }} question{{ total_count|pluralize }}</span>
+      <div class="cbt-page-links">
+        {% if questions.has_previous %}
+          <a href="?page={{ questions.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if exam_filter %}&exam_id={{ exam_filter }}{% endif %}" class="cbt-page-link">&laquo;</a>
+        {% endif %}
+        {% for num in questions.paginator.page_range %}
+          {% if questions.number == num %}
+            <span class="cbt-page-link active">{{ num }}</span>
+          {% elif num > questions.number|add:'-3' and num < questions.number|add:'3' %}
+            <a href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if exam_filter %}&exam_id={{ exam_filter }}{% endif %}" class="cbt-page-link">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+        {% if questions.has_next %}
+          <a href="?page={{ questions.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if exam_filter %}&exam_id={{ exam_filter }}{% endif %}" class="cbt-page-link">&raquo;</a>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

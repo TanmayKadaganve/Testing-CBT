@@ -1,0 +1,31 @@
+sequenceDiagram
+    autonumber
+    actor Candidate
+    participant Editor as Code Editor (UI)
+    participant View as Coding Question View
+    participant DB as Database (CodeDraft & StarterCode)
+
+    Candidate->>Editor: Navigates to Coding Question #1
+    Editor->>View: GET /exam/question/12/
+    View->>DB: Query CodeDraft(attempt, question, active_language)
+    alt Draft Exists in DB
+        DB-->>View: Returns saved code draft
+    else No Prior Draft
+        View->>DB: Query CodingQuestionStarterCode(question, active_language)
+        DB-->>View: Returns template starter code
+    end
+    View-->>Editor: Render editor with code content
+    
+    Candidate->>Editor: Writes custom algorithm solution
+    Editor->>Editor: Debounce Timer (2000ms idle)
+    Editor->>View: POST /api/save-draft/ {question_id: 12, language: 'python', code: '...'}
+    View->>DB: CodeDraft.objects.update_or_create(...)
+    DB-->>View: Saved
+    View-->>Editor: 200 OK {status: 'draft_saved'}
+
+    opt Switch Language (e.g., Python to C++)
+        Candidate->>Editor: Selects "C++" from dropdown
+        Editor->>View: Save current Python draft
+        Editor->>View: Request C++ draft or starter code
+        View-->>Editor: Load C++ draft independently without data loss!
+    end

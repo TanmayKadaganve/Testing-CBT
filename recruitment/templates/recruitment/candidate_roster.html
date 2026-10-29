@@ -1,0 +1,98 @@
+{% extends "portal/admin_dashboard/base.html" %}
+{% block title %}Candidates — {{ drive.name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Candidates — {{ drive.name }}</h1>
+  <a href="{% url 'recruitment:drive_detail' drive.id %}" class="btn btn-outline">← Back to Drive</a>
+</div>
+
+<!-- Filters -->
+<form method="get" class="filter-bar">
+  <input type="text" name="q" value="{{ search }}" placeholder="Search USN or name…">
+  <select name="status">
+    <option value="">All Statuses</option>
+    {% for val, label in status_choices %}
+    <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <select name="round_id">
+    <option value="">All Rounds</option>
+    {% for r in rounds %}
+    <option value="{{ r.id }}" {% if round_filter == r.id|stringformat:'s' %}selected{% endif %}>{{ r.name }}</option>
+    {% endfor %}
+  </select>
+  <button class="btn btn-outline" type="submit">Filter</button>
+  <a href="{% url 'recruitment:candidate_roster' drive.id %}" class="btn btn-outline">Clear</a>
+</form>
+
+<p class="text-muted">Showing {{ page.object_list|length }} of {{ total_count }} candidates</p>
+
+{% if page.object_list %}
+<div class="table-responsive">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>USN</th>
+        <th>Name</th>
+        <th>Status</th>
+        <th>Current Round</th>
+        <th>Selected</th>
+        <th>Enrolled</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for enrollment in page.object_list %}
+      <tr>
+        <td>{{ enrollment.student.usn }}</td>
+        <td>{{ enrollment.student.name }}</td>
+        <td>
+          <span class="badge badge-{{ enrollment.status|lower }}">
+            {{ enrollment.get_status_display }}
+          </span>
+        </td>
+        <td>{{ enrollment.current_round.name|default:"—" }}</td>
+        <td>{% if enrollment.final_selected %}✅{% else %}—{% endif %}</td>
+        <td>{{ enrollment.enrolled_at|date:"d M Y" }}</td>
+        <td>
+          <a href="{% url 'recruitment:candidate_detail_view' enrollment.id %}" class="btn btn-sm btn-outline">Timeline</a>
+          {% if enrollment.status not in "ARCHIVED WITHDRAWN" %}
+          <form method="post" action="{% url 'recruitment:archive_candidate' enrollment.id %}" style="display:inline">
+            {% csrf_token %}
+            <input type="hidden" name="reason" value="Archived from roster">
+            <button class="btn btn-sm btn-warning" type="submit"
+              onclick="return confirm('Archive this candidate?')">Archive</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Pagination -->
+{% if page.has_other_pages %}
+<div class="pagination">
+  {% if page.has_previous %}<a href="?page={{ page.previous_page_number }}&q={{ search }}&status={{ status_filter }}&round_id={{ round_filter }}">← Prev</a>{% endif %}
+  Page {{ page.number }} of {{ page.paginator.num_pages }}
+  {% if page.has_next %}<a href="?page={{ page.next_page_number }}&q={{ search }}&status={{ status_filter }}&round_id={{ round_filter }}">Next →</a>{% endif %}
+</div>
+{% endif %}
+
+<!-- Bulk archive failed -->
+<div style="margin-top:1.5rem">
+  <form method="post" action="{% url 'recruitment:bulk_archive_failed' drive.id %}">
+    {% csrf_token %}
+    <button class="btn btn-warning" type="submit"
+      onclick="return confirm('Archive ALL failed candidates in this drive?')">
+      Bulk Archive Failed Candidates
+    </button>
+  </form>
+</div>
+{% else %}
+<div class="empty-state"><p>No candidates match the current filter.</p></div>
+{% endif %}
+{% endblock %}
+

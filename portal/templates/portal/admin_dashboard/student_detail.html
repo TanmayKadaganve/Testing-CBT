@@ -1,0 +1,192 @@
+{% extends "portal/admin_dashboard/base.html" %}
+
+{% block title %}{{ student.usn }} Details{% endblock %}
+
+{% block breadcrumbs %}
+  <span class="cbt-breadcrumbs-separator">/</span>
+  <a href="{% url 'dashboard_students' %}">Students</a>
+  <span class="cbt-breadcrumbs-separator">/</span>
+  <span class="cbt-breadcrumbs-current">{{ student.usn }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="cbt-page-header">
+  <div class="cbt-page-title-wrap">
+    <h1>{{ student.name }} ({{ student.usn }})</h1>
+    <p>Student candidate profile, registered examinations, and assessment history.</p>
+  </div>
+  <div class="cbt-page-actions">
+    {% if student.active_token %}
+      <form method="post" action="{% url 'reset_student_login' student.id %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="cbt-btn cbt-btn-secondary" data-confirm="Reset active session token for {{ student.usn }}?">
+          Clear Active Session
+        </button>
+      </form>
+    {% endif %}
+    <a href="/admin/portal/student/{{ student.id }}/change/" class="cbt-btn cbt-btn-secondary">
+      Edit in Admin
+    </a>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 2fr;gap:20px;">
+  <!-- Left column: Profile card -->
+  <div class="cbt-card">
+    <div class="cbt-card-header">
+      <h2 class="cbt-card-title">Profile Information</h2>
+    </div>
+    <div class="cbt-card-body" style="display:flex;flex-direction:column;gap:14px;font-size:13.5px;">
+      <div>
+        <span style="color:#64748b;font-size:12px;text-transform:uppercase;">USN</span><br>
+        <b>{{ student.usn }}</b>
+      </div>
+      <div>
+        <span style="color:#64748b;font-size:12px;text-transform:uppercase;">Full Name</span><br>
+        <span>{{ student.name }}</span>
+      </div>
+      <div>
+        <span style="color:#64748b;font-size:12px;text-transform:uppercase;">Email</span><br>
+        <span>{{ student.email|default:"Not provided" }}</span>
+      </div>
+      <div>
+        <span style="color:#64748b;font-size:12px;text-transform:uppercase;">Account Status</span><br>
+        {% if student.is_active %}
+          <span class="cbt-badge green">Active</span>
+        {% else %}
+          <span class="cbt-badge red">Inactive</span>
+        {% endif %}
+      </div>
+      <div>
+        <span style="color:#64748b;font-size:12px;text-transform:uppercase;">Session State</span><br>
+        {% if student.active_token %}
+          <span class="cbt-badge amber">Online (Token Active)</span>
+        {% else %}
+          <span class="cbt-badge slate">No Active Session</span>
+        {% endif %}
+      </div>
+      <div>
+        <span style="color:#64748b;font-size:12px;text-transform:uppercase;">Last Login</span><br>
+        <span>{{ student.last_login_at|date:"d M Y, H:i"|default:"Never" }}</span>
+        {% if student.last_login_ip %}
+          <br><span style="font-size:12px;color:#94a3b8;">IP: {{ student.last_login_ip }}</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Right column: Attempts & Submissions -->
+  <div style="display:flex;flex-direction:column;gap:20px;">
+    <!-- Registered Exams -->
+    <div class="cbt-card">
+      <div class="cbt-card-header">
+        <h2 class="cbt-card-title">Registered Exams</h2>
+      </div>
+      <div class="cbt-table-responsive">
+        <table class="cbt-table">
+          <thead>
+            <tr>
+              <th>Exam</th>
+              <th>Min Stay</th>
+              <th>Sections</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for exam in exams %}
+              <tr>
+                <td><b>{{ exam.title }}</b></td>
+                <td>{{ exam.min_stay_minutes }} mins</td>
+                <td>{{ exam.sections.count }} section{{ exam.sections.count|pluralize }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="3" style="text-align:center;color:#94a3b8;padding:16px;">Not enrolled in any exams.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Exam Attempts -->
+    <div class="cbt-card">
+      <div class="cbt-card-header">
+        <h2 class="cbt-card-title">Attempts History</h2>
+      </div>
+      <div class="cbt-table-responsive">
+        <table class="cbt-table">
+          <thead>
+            <tr>
+              <th>Exam</th>
+              <th>Started At</th>
+              <th>Submitted At</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for att in attempts %}
+              <tr>
+                <td><b>{{ att.exam.title }}</b></td>
+                <td>{{ att.started_at|date:"d M Y, H:i" }}</td>
+                <td>{{ att.submitted_at|date:"d M Y, H:i"|default:"&mdash;" }}</td>
+                <td>
+                  {% if att.submitted_at %}
+                    <span class="cbt-badge green">Submitted</span>
+                  {% else %}
+                    <span class="cbt-badge amber">In Progress</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="4" style="text-align:center;color:#94a3b8;padding:16px;">No exam attempts recorded.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Code Submissions -->
+    <div class="cbt-card">
+      <div class="cbt-card-header">
+        <h2 class="cbt-card-title">Recent Code Submissions</h2>
+      </div>
+      <div class="cbt-table-responsive">
+        <table class="cbt-table">
+          <thead>
+            <tr>
+              <th>Question</th>
+              <th>Language</th>
+              <th>Verdict</th>
+              <th>Score</th>
+              <th>Submitted</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for sub in submissions %}
+              <tr>
+                <td><b>{{ sub.question.title }}</b></td>
+                <td>{{ sub.language|upper }}</td>
+                <td>
+                  {% if sub.verdict == "Accepted" %}
+                    <span class="cbt-badge green">Accepted</span>
+                  {% else %}
+                    <span class="cbt-badge red">{{ sub.verdict }}</span>
+                  {% endif %}
+                </td>
+                <td><b>{{ sub.score }}</b> / {{ sub.question.marks }}</td>
+                <td>{{ sub.created_at|date:"d M, H:i:s" }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="5" style="text-align:center;color:#94a3b8;padding:16px;">No code submissions recorded.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

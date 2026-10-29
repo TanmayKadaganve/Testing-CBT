@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520" width="900" height="520">
+    <defs>
+        <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%" filterUnits="userSpaceOnUse">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+        </filter>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#64748b"/>
+        </marker>
+        <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1e293b"/>
+            <stop offset="100%" stop-color="#0f172a"/>
+        </linearGradient>
+    </defs>
+    
+    <!-- Background -->
+    <rect width="900" height="520" fill="#f8fafc"/>
+    
+    <!-- Header Banner -->
+    <rect width="900" height="70" fill="url(#headerGrad)"/>
+    <text x="30" y="32" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="18" font-weight="800" fill="#38bdf8">PYFORGELABS ARCHITECTURE &amp; WORKFLOWS</text>
+    <text x="30" y="52" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="600" fill="#ffffff">Diagram 2: Target-State Production Architecture &mdash; <tspan fill="#94a3b8">High-Availability, Caching &amp; Containerization</tspan></text>
+    
+    <!-- Content Body -->
+    <g transform="translate(0, 80)">
+        
+    <rect x="30" y="10" width="840" height="80" rx="10" fill="#e0f2fe" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="50" y="30" font-family="sans-serif" font-size="12" font-weight="700" fill="#0369a1">EDGE INGRESS &amp; LOAD BALANCING</text>
+    
+    <g transform="translate(50,40)">
+        <rect width="380" height="40" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Nginx Reverse Proxy / SSL Termination</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">Rate Limiting, Static Asset Caching</text>
+    </g>
+    
+    <g transform="translate(470,40)">
+        <rect width="380" height="40" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Daphne ASGI WebSockets Gateway</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">Real-Time Telemetry &amp; Alerts</text>
+    </g>
+
+    
+    <path d="M 240 90 L 240 120" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    
+    
+    <path d="M 660 90 L 660 120" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    
+
+    <rect x="30" y="120" width="840" height="120" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="50" y="140" font-family="sans-serif" font-size="12" font-weight="700" fill="#334155">APPLICATION CLUSTER &amp; IN-MEMORY CACHE</text>
+    
+    <g transform="translate(50,150)">
+        <rect width="250" height="70" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Gunicorn Instance 1</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">Django 6.1.2 Workers</text>
+    </g>
+    
+    <g transform="translate(320,150)">
+        <rect width="250" height="70" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Gunicorn Instance 2</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">Django 6.1.2 Workers</text>
+    </g>
+    
+    <g transform="translate(590,150)">
+        <rect width="260" height="70" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Redis 7.x Broker &amp; Cache</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">Celery Queue, Channels, Sessions</text>
+    </g>
+
+    
+    <path d="M 175 240 L 175 270" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    
+    
+    <path d="M 720 240 L 720 270" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    
+
+    <rect x="30" y="270" width="840" height="140" rx="10" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="50" y="290" font-family="sans-serif" font-size="12" font-weight="700" fill="#15803d">CONTAINERIZED RUNNERS &amp; CLUSTERED STORAGE</text>
+    
+    <g transform="translate(50,305)">
+        <rect width="360" height="85" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">PostgreSQL 16 Primary + Read Replica</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">PgBouncer Connection Pooler, WAL</text>
+    </g>
+    
+    <g transform="translate(450,305)">
+        <rect width="400" height="85" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Distributed Celery Workers &amp; nsjail</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">Isolated Linux cgroups, no network, 128MB</text>
+    </g>
+    
+    </g>
+</svg>

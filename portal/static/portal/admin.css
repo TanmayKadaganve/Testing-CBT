@@ -1,0 +1,30 @@
+.testcase-inline .form-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(120px, 0.6fr) minmax(110px, 0.5fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.testcase-inline .form-row > div {
+  float: none;
+  min-width: 0;
+  width: auto;
+  padding: 0;
+}
+
+.testcase-inline textarea {
+  box-sizing: border-box;
+  max-width: 100%;
+  width: 100%;
+}
+
+.testcase-inline .form-row label,
+.testcase-inline .form-row label.required {
+  font-weight: 400;
+}
+
+@media (max-width: 900px) {
+  .testcase-inline .form-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}

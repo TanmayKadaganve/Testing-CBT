@@ -1,0 +1,102 @@
+{% extends "portal/admin_dashboard/base.html" %}
+
+{% block title %}Exams & Sections{% endblock %}
+
+{% block breadcrumbs %}
+  <span class="cbt-breadcrumbs-separator">/</span>
+  <span class="cbt-breadcrumbs-current">Exams & Sections</span>
+{% endblock %}
+
+{% block content %}
+<div class="cbt-page-header">
+  <div class="cbt-page-title-wrap">
+    <h1>Exams & Sections</h1>
+    <p>Configure assessment schedules, section structures, and question allotments.</p>
+  </div>
+  <div class="cbt-page-actions">
+    {% if perms.portal.add_exam %}
+    <a href="{% url 'admin:portal_exam_add' %}" class="cbt-btn cbt-btn-primary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      Add Exam
+    </a>
+    {% endif %}
+    {% if perms.portal.view_section %}
+    <a href="{% url 'admin:portal_section_changelist' %}" class="cbt-btn cbt-btn-secondary">
+      Manage Sections
+    </a>
+    {% endif %}
+    {% if perms.portal.view_exam %}
+    <a href="{% url 'admin:portal_exam_changelist' %}" class="cbt-btn cbt-btn-secondary">
+      Admin Table
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="cbt-card">
+  <div class="cbt-table-responsive">
+    <table class="cbt-table">
+      <thead>
+        <tr>
+          <th>Exam Title</th>
+          <th>Schedule Range</th>
+          <th>Min Stay</th>
+          <th>Sections Configured</th>
+          <th>Enrolled Students</th>
+          <th>Attempts</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for exam in exams %}
+          <tr>
+            <td>
+              <b>{{ exam.title }}</b>
+            </td>
+            <td>
+              {% if exam.start_time and exam.end_time %}
+                <span style="font-size:12.5px;">{{ exam.start_time|date:"d M Y, H:i" }} &rarr; {{ exam.end_time|date:"H:i" }}</span>
+              {% else %}
+                <span style="color:#f59e0b;font-size:12px;">No active schedule</span>
+              {% endif %}
+            </td>
+            <td>{{ exam.min_stay_minutes }} mins</td>
+            <td>
+              <div style="display:flex;flex-direction:column;gap:4px;">
+                {% for sec in exam.sections.all %}
+                  <a href="/admin/portal/section/{{ sec.id }}/change/" style="font-size:12px;display:flex;align-items:center;gap:6px;text-decoration:none;color:inherit;" title="Edit Section: {{ sec.title }}">
+                    <span class="cbt-badge {% if sec.kind == 'CODING' %}amber{% else %}blue{% endif %}">{{ sec.kind }}</span>
+                    <span style="text-decoration:underline;text-underline-offset:2px;">{{ sec.order }}. {{ sec.title }} ({{ sec.start_time|date:"H:i" }}-{{ sec.end_time|date:"H:i" }})</span>
+                  </a>
+                {% empty %}
+                  <span style="color:#ef4444;font-size:12px;">No sections created</span>
+                {% endfor %}
+              </div>
+            </td>
+            <td><b>{{ exam.student_count }}</b> students</td>
+            <td><b>{{ exam.attempt_count }}</b> attempts</td>
+            <td>
+              <div style="display:flex;gap:6px;">
+                <a href="/admin/portal/exam/{{ exam.id }}/change/" class="cbt-btn cbt-btn-secondary cbt-btn-sm">
+                  Edit
+                </a>
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="7">
+              <div class="cbt-empty-state">
+                <svg class="cbt-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                <div class="cbt-empty-title">No Exams Configured</div>
+                <div class="cbt-empty-desc">Create your first examination and define its sections via the administration center.</div>
+                <a href="{% url 'admin:portal_exam_add' %}" class="cbt-btn cbt-btn-primary cbt-btn-sm">Create Exam</a>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

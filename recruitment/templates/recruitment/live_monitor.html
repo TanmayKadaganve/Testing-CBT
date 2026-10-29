@@ -1,0 +1,268 @@
+{% extends "portal/admin_dashboard/base.html" %}
+
+{% block title %}Live Invigilator Console — {{ drive.name }}{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+  <div>
+    <h1 style="margin:0 0 4px 0">Live Invigilator Console</h1>
+    <div class="text-muted" style="font-size:14px">
+      Drive: <strong>{{ drive.name }}</strong> ({{ drive.company_name }} — {{ drive.role }}) &nbsp;|&nbsp;
+      Status: <span class="badge badge-{{ drive.status|lower }}">{{ drive.get_status_display }}</span>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+      <input type="checkbox" id="auto-poll-toggle" checked>
+      <span>Auto-refresh (7s)</span>
+    </label>
+    <button class="btn btn-sm btn-outline" id="refresh-now-btn" type="button" onclick="pollUpdates()">Refresh Now</button>
+    <a href="{% url 'recruitment:drive_detail' drive.id %}" class="btn btn-sm btn-outline">Drive Details</a>
+    <a href="{% url 'recruitment:integrity_events' drive.id %}" class="btn btn-sm btn-outline">Integrity Log</a>
+  </div>
+</div>
+
+<!-- Operational Metric Cards -->
+<div class="metrics-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin:16px 0">
+  <div class="metric-card" style="padding:12px;text-align:center;background:#f8f9fa;border-radius:8px;border:1px solid #e9ecef">
+    <div class="metric-value" id="stat-enrolled" style="font-size:24px;font-weight:700">{{ overview.total_enrolled }}</div>
+    <div class="metric-label" style="font-size:12px;color:#6c757d">Enrolled</div>
+  </div>
+  <div class="metric-card" style="padding:12px;text-align:center;background:#f8f9fa;border-radius:8px;border:1px solid #e9ecef">
+    <div class="metric-value" id="stat-active" style="font-size:24px;font-weight:700;color:#0d6efd">{{ overview.active_sessions }}</div>
+    <div class="metric-label" style="font-size:12px;color:#6c757d">Active Sessions</div>
+  </div>
+  <div class="metric-card" style="padding:12px;text-align:center;background:#e8f5e9;border-radius:8px;border:1px solid #c8e6c9">
+    <div class="metric-value" id="stat-connected" style="font-size:24px;font-weight:700;color:#2e7d32">{{ overview.connected_count }}</div>
+    <div class="metric-label" style="font-size:12px;color:#2e7d32">Connected</div>
+  </div>
+  <div class="metric-card" style="padding:12px;text-align:center;background:#fff8e1;border-radius:8px;border:1px solid #ffe082">
+    <div class="metric-value" id="stat-stale" style="font-size:24px;font-weight:700;color:#f57f17">{{ overview.stale_count }}</div>
+    <div class="metric-label" style="font-size:12px;color:#f57f17">Stale (&gt;45s)</div>
+  </div>
+  <div class="metric-card" style="padding:12px;text-align:center;background:#ffebee;border-radius:8px;border:1px solid #ffcdd2">
+    <div class="metric-value" id="stat-disconnected" style="font-size:24px;font-weight:700;color:#c62828">{{ overview.disconnected_count }}</div>
+    <div class="metric-label" style="font-size:12px;color:#c62828">Disconnected</div>
+  </div>
+  <div class="metric-card" style="padding:12px;text-align:center;background:#ffebee;border-radius:8px;border:1px solid #ffcdd2">
+    <div class="metric-value" id="stat-warnings" style="font-size:24px;font-weight:700;color:#c62828">{{ overview.unresolved_warnings }}</div>
+    <div class="metric-label" style="font-size:12px;color:#c62828">Unresolved Alerts</div>
+  </div>
+  <div class="metric-card" style="padding:12px;text-align:center;background:#f8f9fa;border-radius:8px;border:1px solid #e9ecef">
+    <div class="metric-value" id="stat-code-jobs" style="font-size:24px;font-weight:700;color:#6f42c1">{{ overview.pending_code_jobs }}</div>
+    <div class="metric-label" style="font-size:12px;color:#6c757d">Code Queue</div>
+  </div>
+  <div class="metric-card" style="padding:12px;text-align:center;background:#f8f9fa;border-radius:8px;border:1px solid #e9ecef">
+    <div class="metric-value" id="stat-eval" style="font-size:24px;font-weight:700;color:#fd7e14">{{ overview.awaiting_evaluation }}</div>
+    <div class="metric-label" style="font-size:12px;color:#6c757d">Awaiting Eval</div>
+  </div>
+</div>
+
+<!-- Live Alert Ticker -->
+<div id="alert-ticker" style="margin-bottom:16px;display:none;padding:10px 14px;background:#fff3cd;border:1px solid #ffeeba;border-radius:6px;font-size:13px">
+  <strong>New Alerts:</strong> <span id="alert-ticker-msg"></span>
+</div>
+
+<!-- Filters -->
+<form method="get" class="filter-bar" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+  <input type="text" name="q" value="{{ search_query }}" placeholder="Search USN or Name…" style="padding:6px 10px;border:1px solid #ccc;border-radius:4px;min-width:180px">
+  <select name="round_id" style="padding:6px 10px;border:1px solid #ccc;border-radius:4px">
+    <option value="">All Rounds</option>
+    {% for r in rounds %}
+    <option value="{{ r.id }}" {% if selected_round_id == r.id|stringformat:'s' %}selected{% endif %}>{{ r.name }}</option>
+    {% endfor %}
+  </select>
+  <select name="connection" style="padding:6px 10px;border:1px solid #ccc;border-radius:4px">
+    <option value="">All Connection States</option>
+    <option value="CONNECTED" {% if selected_connection == 'CONNECTED' %}selected{% endif %}>Connected</option>
+    <option value="STALE" {% if selected_connection == 'STALE' %}selected{% endif %}>Stale (&gt;45s)</option>
+    <option value="DISCONNECTED" {% if selected_connection == 'DISCONNECTED' %}selected{% endif %}>Disconnected</option>
+  </select>
+  <select name="severity" style="padding:6px 10px;border:1px solid #ccc;border-radius:4px">
+    <option value="">All Alert Severities</option>
+    <option value="CRITICAL" {% if selected_severity == 'CRITICAL' %}selected{% endif %}>Critical Only</option>
+    <option value="WARNING" {% if selected_severity == 'WARNING' %}selected{% endif %}>Warning</option>
+    <option value="INFO" {% if selected_severity == 'INFO' %}selected{% endif %}>Info</option>
+  </select>
+  <button class="btn btn-outline" type="submit">Apply Filter</button>
+  <a href="{% url 'recruitment:live_invigilator_console' drive.id %}" class="btn btn-outline">Clear</a>
+</form>
+
+<!-- Candidate Live Monitoring Table -->
+<div class="table-responsive">
+  <table class="data-table" id="roster-table" style="width:100%;border-collapse:collapse">
+    <thead>
+      <tr style="background:#f1f3f5;border-bottom:2px solid #dee2e6;text-align:left;font-size:12px;text-transform:uppercase">
+        <th style="padding:8px 10px">USN / Candidate</th>
+        <th style="padding:8px 10px">Round</th>
+        <th style="padding:8px 10px">Attempt</th>
+        <th style="padding:8px 10px">Time (Elapsed / Left)</th>
+        <th style="padding:8px 10px">MCQ</th>
+        <th style="padding:8px 10px">Coding</th>
+        <th style="padding:8px 10px">Persisted</th>
+        <th style="padding:8px 10px">Heartbeat</th>
+        <th style="padding:8px 10px">Status</th>
+        <th style="padding:8px 10px">Alerts</th>
+        <th style="padding:8px 10px">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="roster-tbody" style="font-size:13px">
+      {% for item in roster.items %}
+      <tr id="row-{{ item.enrollment_id }}" style="border-bottom:1px solid #eee">
+        <td style="padding:8px 10px">
+          <strong>{{ item.student_usn }}</strong><br>
+          <span class="text-muted" style="font-size:11px">{{ item.student_name }}</span>
+        </td>
+        <td style="padding:8px 10px">
+          {{ item.current_round }}<br>
+          <span class="text-muted" style="font-size:11px">{{ item.round_type }}</span>
+        </td>
+        <td style="padding:8px 10px">
+          {% if item.attempt_state == 'Active' %}
+            <span style="color:#0d6efd;font-weight:600">● Active</span>
+          {% elif item.attempt_state == 'Submitted' %}
+            <span style="color:#198754;font-weight:600">✓ Submitted</span>
+          {% else %}
+            <span class="text-muted">Not Started</span>
+          {% endif %}
+        </td>
+        <td style="padding:8px 10px">
+          {{ item.elapsed_mins }}m elapsed<br>
+          <span style="font-weight:600;color:{% if item.time_remaining != '—' and item.time_remaining <= '10m' %}#dc3545{% else %}#495057{% endif %}">
+            {{ item.time_remaining }} left
+          </span>
+        </td>
+        <td style="padding:8px 10px">
+          {% if item.mcq_total > 0 %}
+            {{ item.mcq_answered }} / {{ item.mcq_total }}
+          {% else %}
+            —
+          {% endif %}
+        </td>
+        <td style="padding:8px 10px">
+          {{ item.code_summary }}
+        </td>
+        <td style="padding:8px 10px">
+          <span style="font-family:monospace;font-size:11px">{{ item.last_persisted_at }}</span>
+        </td>
+        <td style="padding:8px 10px">
+          <span style="font-family:monospace;font-size:11px">{{ item.last_heartbeat }}</span>
+        </td>
+        <td style="padding:8px 10px">
+          {% if item.connection_status == 'CONNECTED' %}
+            <span style="background:#28a745;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600">Connected</span>
+          {% elif item.connection_status == 'STALE' %}
+            <span style="background:#ffc107;color:#212529;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600">Stale</span>
+          {% else %}
+            <span style="background:#dc3545;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600">Offline</span>
+          {% endif %}
+        </td>
+        <td style="padding:8px 10px">
+          {% if item.unresolved_warnings > 0 %}
+            <span style="background:{% if item.highest_severity == 'CRITICAL' %}#dc3545{% else %}#ffc107;color:#212529{% endif %};color:#fff;padding:2px 6px;border-radius:8px;font-size:11px;font-weight:700">
+              ⚠ {{ item.unresolved_warnings }}
+            </span>
+          {% else %}
+            <span style="color:#28a745">✓ 0</span>
+          {% endif %}
+        </td>
+        <td style="padding:8px 10px">
+          <a href="{% url 'recruitment:candidate_detail_view' item.enrollment_id %}" class="btn btn-sm btn-outline" style="font-size:11px;padding:2px 6px">Timeline</a>
+          <button class="btn btn-sm btn-outline" style="font-size:11px;padding:2px 6px" onclick="openNoteModal('{{ item.enrollment_id }}', '{{ item.student_usn }}')">+ Note</button>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="11" style="text-align:center;padding:20px;color:#6c757d">
+          No candidates match the specified criteria.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Invigilator Note Modal -->
+<div id="note-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:#fff;padding:24px;border-radius:8px;max-width:480px;width:90%">
+    <h3 style="margin-top:0">Add Invigilator Note</h3>
+    <p>Candidate: <strong id="modal-candidate-usn"></strong></p>
+    <form method="post" id="note-form" action="">
+      {% csrf_token %}
+      <div style="margin-bottom:12px">
+        <label style="display:block;margin-bottom:4px">Observation / Note:</label>
+        <textarea name="note" id="note-text" rows="4" style="width:100%;box-sizing:border-box;padding:8px;border:1px solid #ccc;border-radius:4px" placeholder="Enter objective invigilation observation..." required></textarea>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px">
+        <button type="button" class="btn btn-outline" onclick="closeNoteModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Note</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+let lastEventId = 0;
+let pollTimer = null;
+
+function openNoteModal(enrollmentId, usn) {
+  document.getElementById('modal-candidate-usn').innerText = usn;
+  document.getElementById('note-form').action = '/recruitment/admin/candidates/' + enrollmentId + '/note/';
+  document.getElementById('note-modal').style.display = 'flex';
+}
+
+function closeNoteModal() {
+  document.getElementById('note-modal').style.display = 'none';
+  document.getElementById('note-text').value = '';
+}
+
+function pollUpdates() {
+  const url = '{% url "recruitment:live_monitor_updates" drive.id %}?since_event_id=' + lastEventId;
+  fetch(url, {
+    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (!data || !data.metrics) return;
+
+    // Update operational counter cards
+    document.getElementById('stat-enrolled').innerText = data.metrics.total_enrolled;
+    document.getElementById('stat-active').innerText = data.metrics.active_sessions;
+    document.getElementById('stat-connected').innerText = data.metrics.connected_count;
+    document.getElementById('stat-stale').innerText = data.metrics.stale_count;
+    document.getElementById('stat-disconnected').innerText = data.metrics.disconnected_count;
+    document.getElementById('stat-warnings').innerText = data.metrics.unresolved_warnings;
+    document.getElementById('stat-code-jobs').innerText = data.metrics.pending_code_jobs;
+    document.getElementById('stat-eval').innerText = data.metrics.awaiting_evaluation;
+
+    // Show alerts ticker if new events arrived
+    if (data.new_events && data.new_events.length > 0) {
+      lastEventId = data.max_event_id;
+      const latest = data.new_events[data.new_events.length - 1];
+      const ticker = document.getElementById('alert-ticker');
+      const tickerMsg = document.getElementById('alert-ticker-msg');
+      tickerMsg.innerText = '[' + latest.severity + '] ' + latest.usn + ': ' + latest.event_type + ' (' + latest.occurred_at + ')';
+      ticker.style.display = 'block';
+    }
+  })
+  .catch(err => {
+    console.debug('Polling update check failed:', err);
+  });
+}
+
+// Auto-polling lifecycle
+const toggle = document.getElementById('auto-poll-toggle');
+if (toggle) {
+  toggle.addEventListener('change', function() {
+    if (this.checked) {
+      pollTimer = setInterval(pollUpdates, 7000);
+    } else {
+      clearInterval(pollTimer);
+      pollTimer = null;
+    }
+  });
+  pollTimer = setInterval(pollUpdates, 7000);
+}
+</script>
+{% endblock %}
+

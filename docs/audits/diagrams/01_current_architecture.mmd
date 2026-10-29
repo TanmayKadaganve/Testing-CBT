@@ -1,0 +1,49 @@
+flowchart TB
+    subgraph ClientLayer["Client Layer (Lab Workstations)"]
+        S_UI["Student Web Client\n(Vanilla JS, Auto-save, Ace/Monaco, Visibility API)"]
+        A_UI["Admin / Invigilator Console\n(Live Monitoring Dashboard, Audit Log)"]
+        I_UI["Interviewer Portal\n(Rubric Scoring, Candidate Timeline)"]
+    end
+
+    subgraph AppServer["Django Application Server (Port 8000)"]
+        WSGI["WSGI / Gunicorn / runserver"]
+        SEC["Security & Middleware\n(CSRF, Session, Auth, HostValidation)"]
+        
+        subgraph PortalApp["portal Application"]
+            PV["portal.views\n(Auth, Exam, Section, MCQ Autosave, Drafts)"]
+            PR["portal.runner\n(Multi-language Sandbox: Python, C, C++)"]
+            PJ["portal.judge\n(Test Case Matcher, Score Engine)"]
+            PQ["portal.execution_queue\n(DB-backed ExecutionJob Queue)"]
+        end
+
+        subgraph RecruitmentApp["recruitment Application"]
+            RV["recruitment.views & admin_views\n(Drives, Invigilation, Telemetry)"]
+            RP["recruitment.progression\n(Round Cutoffs & Promotion Engine)"]
+            RA["recruitment.analytics & retention\n(Scores, Latency, Data Pruning)"]
+        end
+    end
+
+    subgraph DataLayer["Persistence & Storage Layer"]
+        DB[("SQLite 3 Database\n(db.sqlite3 with WAL mode & 15s timeout)")]
+        STATIC["Collected Static Assets\n(staticfiles/)"]
+        SANDBOX_TMP["Sandboxed Temp Files\n(/tmp/pyforgelabs_exec_*)"]
+    end
+
+    subgraph WorkerProcess["Background Execution Engine"]
+        WORKER["run_execution_worker.py\n(Polling Loop, Atomic Job Claiming)"]
+        SUBPROC["Subprocess Sandbox\n(ulimit CPU, Memory, Timeout Enforcement)"]
+    end
+
+    S_UI -->|"HTTP / REST API (CSRF)"| WSGI
+    A_UI -->|"Live Polling (Presence, Alerts)"| WSGI
+    I_UI -->|"Rubric Evaluation POST"| WSGI
+    WSGI --> SEC --> PV & RV
+    PV --> PR & PQ
+    PQ --> DB
+    WORKER -->|"SELECT FOR UPDATE / Claim"| DB
+    WORKER --> SUBPROC
+    SUBPROC --> SANDBOX_TMP
+    PR --> SUBPROC
+    RV --> RP & RA
+    PV & RV --> DB
+    WSGI -.-> STATIC

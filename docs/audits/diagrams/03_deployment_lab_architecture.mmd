@@ -1,0 +1,31 @@
+flowchart TB
+    subgraph CollegeLAN["College Computer Laboratory Local Area Network (192.168.1.0/24)"]
+        SWITCH["Layer-2/3 Gigabit Managed Ethernet Switch (1000BASE-T)"]
+        
+        subgraph StudentWorkstations["50x Student Lab Workstations (DHCP: 192.168.1.50 - 192.168.1.100)"]
+            PC1["Lab PC 01\n(Chromium/Firefox)"]
+            PC2["Lab PC 02\n(Chromium/Firefox)"]
+            PC_N["Lab PC 50\n(Chromium/Firefox)"]
+        end
+
+        subgraph InvigilatorDesk["Invigilator & Placement Control Desk (192.168.1.10)"]
+            INV_PC["Placement Officer Laptop\n(Live Invigilation, Projector Output)"]
+        end
+
+        subgraph ServerHost["Local Host Server (Lab Head Machine / Mac Mini: 192.168.1.5:8000)"]
+            HOST_OS["Host Operating System (macOS / Ubuntu Linux)"]
+            PY_ENV[".venv Virtualenv (Python 3.13)"]
+            DJ_INST["PyForgeLabs Django Core Instance\n(Gunicorn / runserver)"]
+            DB_FILE[("Local SQLite WAL File\n(Fast NVMe / SSD Storage)")]
+            WORKER_PROC["Background Worker Process\n(run_execution_worker.py)"]
+        end
+    end
+
+    PC1 & PC2 & PC_N -->|"Gigabit LAN Ethernet"| SWITCH
+    INV_PC -->|"Ethernet / Wi-Fi"| SWITCH
+    SWITCH -->|"HTTP Traffic (Port 8000)"| HOST_OS
+    HOST_OS --> PY_ENV --> DJ_INST
+    DJ_INST <--> DB_FILE
+    WORKER_PROC <--> DB_FILE
+    
+    note["100% Offline Capability:\nNo external internet connection required.\nZero cloud API latency, resilient to ISP outage."]

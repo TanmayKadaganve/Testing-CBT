@@ -1,0 +1,45 @@
+flowchart TB
+    subgraph EdgeLayer["Edge & Ingress Layer"]
+        DNS["Internal College DNS / Router"]
+        NGINX["Nginx High-Performance Reverse Proxy\n(SSL/TLS, Static File Cache, Gzip, Rate Limiting)"]
+    end
+
+    subgraph AppCluster["Application Tier (Scale-Out)"]
+        GUNICORN1["Gunicorn Instance 1\n(4 gthread Workers)"]
+        GUNICORN2["Gunicorn Instance 2\n(4 gthread Workers)"]
+        ASGI["Daphne / Uvicorn ASGI Server\n(WebSockets for Real-time Invigilation)"]
+    end
+
+    subgraph CacheBroker["In-Memory Cache & Message Broker"]
+        REDIS["Redis 7.x Cluster / Standalone\n(Cache, Channel Layers, Celery Broker, Session Store)"]
+    end
+
+    subgraph CoreServices["Django Core Platform (portal + recruitment)"]
+        DJ_CORE["Django 6.x Application Server"]
+        PROG_SVC["Progression & Evaluation Service"]
+        INVIG_SVC["Live Telemetry & Alert Stream"]
+    end
+
+    subgraph SandboxFleet["Distributed Execution Fleet"]
+        CELERY["Celery Distributed Workers"]
+        DOCKER1["Containerized Sandbox 1\n(nsjail / Docker cgroups)"]
+        DOCKER2["Containerized Sandbox 2\n(nsjail / Docker cgroups)"]
+    end
+
+    subgraph StorageLayer["Data & Persistence Tier"]
+        PG_PRIMARY[("PostgreSQL 16 Primary\n(ACID, Connection Pooler: PgBouncer)")]
+        PG_REPLICA[("PostgreSQL 16 Read Replica\n(Analytics & Live Dashboard Queries)")]
+    end
+
+    DNS --> NGINX
+    NGINX -->|"Static / Media"| STATIC_VOL["Local SSD / S3 Volume"]
+    NGINX -->|"HTTP Requests"| GUNICORN1 & GUNICORN2
+    NGINX -->|"WebSocket Connections"| ASGI
+    GUNICORN1 & GUNICORN2 --> DJ_CORE
+    ASGI --> INVIG_SVC
+    DJ_CORE --> REDIS
+    DJ_CORE -->|"Write Queries"| PG_PRIMARY
+    DJ_CORE -.->|"Read Replicas"| PG_REPLICA
+    DJ_CORE -->|"Enqueue Execution Tasks"| REDIS
+    REDIS --> CELERY
+    CELERY --> DOCKER1 & DOCKER2

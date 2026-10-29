@@ -1,0 +1,55 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="{% static 'portal/images/pyforgelabs-logo.png' %}">
+  <title>PyForgeLabs | Assessment Feedback</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+    body { min-height: 100vh; margin: 0; padding: 24px; display: grid; place-items: center;
+           color: #172435; background: #f3f6fa; }
+    .wrap { width: min(100%, 720px); padding: 32px; background: #fff; border: 1px solid #dce3eb;
+            border-top: 4px solid #1265d8; border-radius: 8px; box-shadow: 0 4px 16px rgba(22, 47, 78, .06); }
+    h1 { margin: 0 0 10px; color: #172435; font-size: 26px; }
+    p { margin: 0 0 22px; color: #526271; line-height: 1.6; }
+    .q { margin: 22px 0 10px; color: #344256; font-weight: 700; line-height: 1.5; }
+    .scale { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+    .scale label { color: #526271; }
+    textarea { width: 100%; min-height: 110px; padding: 10px 12px; border: 1px solid #cbd5e1;
+               border-radius: 6px; background: #fff; color: #172435; font-size: 15px; resize: vertical; }
+    textarea:focus { outline: 3px solid rgba(18, 101, 216, .15); border-color: #1265d8; }
+    button { min-height: 44px; margin-top: 20px; padding: 0 22px; background: #1265d8; color: #fff;
+             border: 0; border-radius: 6px; font-size: 15px; font-weight: 700; cursor: pointer; }
+    .error { margin-top: 12px; color: #b42318; }
+    @media (max-width: 520px) { body { padding: 14px; } .wrap { padding: 24px 20px; } h1 { font-size: 23px; } }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Your exam is submitted</h1>
+  <p>Thank you, {{ student.name }}. Please share quick feedback.</p>
+  <form method="post">
+    {% csrf_token %}
+    <div class="q">How was your overall experience? (1 = poor, 5 = excellent)</div>
+    <div class="scale">
+      {% for n in "12345" %}<label><input type="radio" name="experience" value="{{ n }}"> {{ n }}</label>{% endfor %}
+    </div>
+    <div class="q">How close did this feel to the real NQT exam? (1 = very different, 5 = very similar)</div>
+    <div class="scale">
+      {% for n in "12345" %}<label><input type="radio" name="realism" value="{{ n }}"> {{ n }}</label>{% endfor %}
+    </div>
+    <div class="q">Any comments or suggestions? (optional)</div>
+    <textarea name="comments"></textarea>
+    {% if error %}<div class="error">{{ error }}</div>{% endif %}
+    <button type="submit">Submit feedback</button>
+  </form>
+</div>
+<script>
+  window.addEventListener('pageshow', function (e) {
+    if (e.persisted) { location.reload(); }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 580" width="900" height="580">
+    <defs>
+        <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%" filterUnits="userSpaceOnUse">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+        </filter>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#64748b"/>
+        </marker>
+        <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1e293b"/>
+            <stop offset="100%" stop-color="#0f172a"/>
+        </linearGradient>
+    </defs>
+    
+    <!-- Background -->
+    <rect width="900" height="580" fill="#f8fafc"/>
+    
+    <!-- Header Banner -->
+    <rect width="900" height="70" fill="url(#headerGrad)"/>
+    <text x="30" y="32" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="18" font-weight="800" fill="#38bdf8">PYFORGELABS ARCHITECTURE &amp; WORKFLOWS</text>
+    <text x="30" y="52" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="600" fill="#ffffff">Diagram 1: Current System Architecture &mdash; <tspan fill="#94a3b8">Component &amp; Process Topology</tspan></text>
+    
+    <!-- Content Body -->
+    <g transform="translate(0, 80)">
+        
+    <!-- Layer Boxes -->
+    <rect x="30" y="10" width="840" height="90" rx="10" fill="#e0f2fe" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="50" y="30" font-family="sans-serif" font-size="12" font-weight="700" fill="#0369a1">CLIENT TIER (Lab Workstations &amp; Admin)</text>
+    
+    <g transform="translate(50,40)">
+        <rect width="240" height="50" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Student Examination UI</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">Vanilla JS, Autosave, Monaco</text>
+    </g>
+    
+    <g transform="translate(320,40)">
+        <rect width="250" height="50" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Invigilator Console</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">Telemetry, Presence, Real-time Alerts</text>
+    </g>
+    
+    <g transform="translate(600,40)">
+        <rect width="250" height="50" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Admin &amp; Interview Portal</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">Rubric Evaluation &amp; Drive Setup</text>
+    </g>
+
+    <!-- Arrows to Django -->
+    
+    <path d="M 170 100 L 250 130" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    <text x="210.0" y="109.0" font-family="-apple-system,sans-serif" font-size="10" fill="#64748b" text-anchor="middle" background="#ffffff">HTTP / CSRF</text>
+    
+    <path d="M 445 100 L 445 130" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    <text x="445.0" y="109.0" font-family="-apple-system,sans-serif" font-size="10" fill="#64748b" text-anchor="middle" background="#ffffff">Heartbeat Polling</text>
+    
+    <path d="M 725 100 L 640 130" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    <text x="682.5" y="109.0" font-family="-apple-system,sans-serif" font-size="10" fill="#64748b" text-anchor="middle" background="#ffffff">Rubric POST</text>
+
+    <!-- Django Core -->
+    <rect x="30" y="130" width="840" height="200" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="50" y="150" font-family="sans-serif" font-size="12" font-weight="700" fill="#334155">APPLICATION TIER (Django 6.1.2 / Python 3.13)</text>
+    
+    <g transform="translate(50,165)">
+        <rect width="360" height="60" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">portal Application</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">MCQ Engine, Autosave Views, Drafts, Sandbox Runner</text>
+    </g>
+    
+    <g transform="translate(450,165)">
+        <rect width="400" height="60" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">recruitment Application</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">Drives, Multi-Round Progression, Presence, Rubric Evaluations</text>
+    </g>
+    
+    <g transform="translate(50,245)">
+        <rect width="360" height="65" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Execution Queue &amp; Sandbox</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">portal.runner, Resource Limits, Compile/Judge</text>
+    </g>
+    
+    <g transform="translate(450,245)">
+        <rect width="400" height="65" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Analytics &amp; Audit Engine</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">recruitment.progression, retention &amp; audit logging</text>
+    </g>
+
+    <!-- Arrows to Storage -->
+    
+    <path d="M 230 330 L 230 360" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    <text x="230.0" y="339.0" font-family="-apple-system,sans-serif" font-size="10" fill="#64748b" text-anchor="middle" background="#ffffff">Job Claim</text>
+    
+    <path d="M 650 330 L 650 360" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    <text x="650.0" y="339.0" font-family="-apple-system,sans-serif" font-size="10" fill="#64748b" text-anchor="middle" background="#ffffff">SQL ACID Read/Write</text>
+
+    <!-- Persistence Tier -->
+    <rect x="30" y="360" width="840" height="110" rx="10" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="50" y="380" font-family="sans-serif" font-size="12" font-weight="700" fill="#b45309">PERSISTENCE &amp; OS EXECUTION TIER</text>
+    
+    <g transform="translate(50,395)">
+        <rect width="360" height="60" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">SQLite 3 Database (WAL Mode)</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">busy_timeout=15000, 19 Relations, ACID</text>
+    </g>
+    
+    <g transform="translate(450,395)">
+        <rect width="400" height="60" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Sandboxed Subprocess Runner</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">/tmp scratch, RLIMIT_CPU, Timeout Kill, gcc/python3</text>
+    </g>
+    
+    </g>
+</svg>

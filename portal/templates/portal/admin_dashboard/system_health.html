@@ -1,0 +1,69 @@
+{% extends "portal/admin_dashboard/base.html" %}
+
+{% block title %}System Health{% endblock %}
+
+{% block breadcrumbs %}
+  <span class="cbt-breadcrumbs-separator">/</span>
+  <span class="cbt-breadcrumbs-current">System Health</span>
+{% endblock %}
+
+{% block content %}
+<div class="cbt-page-header">
+  <div class="cbt-page-title-wrap">
+    <h1>System Health & Diagnostics</h1>
+    <p>Real-time local infrastructure checks, database connectivity, and runner availability.</p>
+  </div>
+  <div class="cbt-page-actions">
+    <a href="{% url 'dashboard_health' %}" class="cbt-btn cbt-btn-primary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+      Refresh Checks
+    </a>
+  </div>
+</div>
+
+<!-- Overall Status Summary Banner -->
+<div class="cbt-card {% if health.overall_status == 'Healthy' %}cbt-border-left-healthy{% elif health.overall_status == 'Warning' %}cbt-border-left-warning{% else %}cbt-border-left-critical{% endif %}" style="padding:20px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div>
+      <div style="font-size:12px;color:#64748b;text-transform:uppercase;font-weight:600;">Overall Infrastructure Status</div>
+      <div style="font-size:22px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px;margin-top:2px;">
+        <span class="cbt-system-pill {% if health.overall_status == 'Healthy' %}healthy{% elif health.overall_status == 'Warning' %}warning{% else %}critical{% endif %}">
+          <span class="cbt-system-pill-dot"></span>
+          {{ health.overall_status }}
+        </span>
+      </div>
+    </div>
+    <div style="font-size:13px;color:#64748b;display:flex;gap:18px;flex-wrap:wrap;">
+      <span><b>Python:</b> {{ health.python_version }}</span>
+      <span><b>Django:</b> {{ health.django_version }}</span>
+      <span><b>Timezone:</b> {{ health.timezone }}</span>
+      <span><b>Debug Mode:</b> {% if health.debug_mode %}Enabled{% else %}Disabled{% endif %}</span>
+      <span><b>Last Checked:</b> {{ health.checked_at|date:"H:i:s" }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Diagnostic Checks Grid -->
+<div class="cbt-health-grid">
+  {% for check in health.checks %}
+    <div class="cbt-health-card">
+      <div class="cbt-health-card-header">
+        <span class="cbt-health-title">
+          {{ check.name }}
+        </span>
+        <span class="cbt-badge {% if check.status == 'Healthy' %}green{% elif check.status == 'Warning' %}amber{% elif check.status == 'Critical' %}red{% else %}slate{% endif %}">
+          {{ check.status }}
+        </span>
+      </div>
+      <div class="cbt-health-detail">
+        {{ check.detail }}
+      </div>
+      {% if check.remediation %}
+        <div class="cbt-health-remediation">
+          <b>Remediation:</b> {{ check.remediation }}
+        </div>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

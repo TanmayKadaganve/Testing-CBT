@@ -1,0 +1,114 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="{% static 'portal/images/pyforgelabs-logo.png' %}">
+  <title>PyForgeLabs | {{ exam.title }} - Instructions</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+    body { min-height: 100vh; min-height: 100dvh; margin: 0; padding: 16px; display: grid;
+           place-items: center; color: #172435; background: #f3f6fa; }
+    .wrap { width: min(100%, 900px); max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px);
+            margin: 0 auto; padding: 24px 28px; overflow-y: auto; background: #fff;
+            border: 1px solid #dce3eb; border-top: 4px solid #1265d8; border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(22, 47, 78, .06); }
+    .top { display: flex; justify-content: space-between; align-items: center; gap: 16px;
+           padding-bottom: 16px; border-bottom: 1px solid #e5ebf2; color: #526271; font-size: 14px; }
+    a { color: #1265d8; }
+    h1 { margin: 22px 0 8px; color: #172435; font-size: 26px; }
+    h2 { margin: 24px 0 8px; color: #344256; font-size: 17px; }
+    p, ul { color: #526271; line-height: 1.65; }
+    ul { padding-left: 22px; }
+    .countdown { margin: 18px 0; color: #1265d8; font-weight: 700; }
+    .error { margin: 12px 0; color: #b42318; }
+    button { min-height: 44px; padding: 0 22px; border: 0; border-radius: 6px; background: #1265d8;
+             color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; }
+    button:disabled { background: #9db7e5; cursor: not-allowed; }
+    @media (max-width: 520px) {
+      body { padding: 10px; }
+      .wrap { max-height: calc(100vh - 20px); max-height: calc(100dvh - 20px); padding: 20px 18px; }
+      h1 { font-size: 23px; }
+      .top { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>{{ student.name }} ({{ student.usn }})</div>
+    <form method="post" action="{% url 'logout' %}" style="margin:0">
+      {% csrf_token %}<button type="submit" style="padding:0;border:0;background:none;color:#1265d8;text-decoration:underline;cursor:pointer">Logout</button>
+    </form>
+  </div>
+  <h1>{{ exam.title }}</h1>
+  <div>Starts: {{ exam.start_time|date:"d M Y, h:i A" }}</div>
+
+  <h2>Instructions</h2>
+  {% if exam.instructions %}<p>{{ exam.instructions|linebreaksbr }}</p>{% endif %}
+  <ul>
+    <li>The exam is divided into sections. Each section has its own fixed time.</li>
+    <li>When a section's time ends, it locks automatically with your last saved answers.</li>
+    <li>Your answers are saved automatically as you work.</li>
+    <li>The Submit button unlocks only after the minimum time of {{ exam.min_stay_minutes }} minutes.</li>
+  </ul>
+
+  <h2>Do's and don'ts</h2>
+  <ul>
+    <li>Do stay seated and keep your eyes on your own screen.</li>
+    <li>Do not try to leave the exam window or open other applications.</li>
+    <li>Do not use mobile phones, notes or any other aids.</li>
+    <li>Do not talk to other candidates. Raise your hand if you need help.</li>
+  </ul>
+
+  {% if exam_over %}
+    <p class="error">This exam has ended.</p>
+  {% else %}
+    <form method="post">
+      {% csrf_token %}
+      <label>
+        <input type="checkbox" name="agree" id="agree">
+        I have read and understood the instructions, and I agree to the terms and conditions.
+      </label>
+      <div class="countdown" id="countdown"></div>
+      {% if error %}<div class="error">{{ error }}</div>{% endif %}
+      <button type="submit" id="start" disabled>Start exam</button>
+    </form>
+  {% endif %}
+</div>
+
+<script>
+  let secs = {{ seconds_to_start }};
+  const cb = document.getElementById('agree');
+  const btn = document.getElementById('start');
+  const cd = document.getElementById('countdown');
+  function update() {
+    if (!cb) return;
+    const remaining = secs;
+    if (remaining > 0) {
+      const h = Math.floor(remaining / 3600);
+      const m = Math.floor((remaining % 3600) / 60);
+      const s = remaining % 60;
+      cd.textContent = 'Exam starts in ' + h + 'h ' + m + 'm ' + s + 's';
+      secs--;
+    } else {
+      cd.textContent = 'The exam has started.';
+    }
+    btn.disabled = !(cb.checked && remaining <= 0);
+  }
+  if (cb) {
+    cb.addEventListener('change', update);
+    update();
+    setInterval(update, 1000);
+  }
+
+  // Refresh page if loaded from browser back-forward cache to prevent stale CSRF tokens
+  window.addEventListener('pageshow', function(e) {
+    if (e.persisted) {
+      window.location.reload();
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+sequenceDiagram
+    autonumber
+    actor Candidate
+    participant Browser as Student Browser
+    participant API as /api/recruitment/telemetry/
+    participant DB as SQLite DB
+    participant Invig as Invigilator Console (Admin)
+
+    loop Every 15 Seconds
+        Browser->>API: POST /presence/ (heartbeat, section, focused: true)
+        API->>DB: Update CandidatePresence(last_heartbeat=now())
+    end
+
+    opt Violation Occurs (Candidate switches tab or un-fullscreens)
+        Candidate->>Browser: Tab switch away to search engine
+        Browser->>Browser: Page Visibility API triggers `visibilitychange`
+        Browser->>Browser: Render on-screen warning modal: "Warning! Tab change detected!"
+        Browser->>API: POST /integrity-event/ (type='TAB_SWITCH', details='blur event')
+        API->>DB: IntegrityEvent.objects.create(enrollment, 'TAB_SWITCH')
+        API->>DB: CandidatePresence.violation_count += 1
+    end
+
+    loop Every 5 Seconds (Invigilator Live View)
+        Invig->>API: GET /admin/recruitment/live-feed/
+        API->>DB: Query active CandidatePresence & recent IntegrityEvents
+        DB-->>API: Candidate records with status & violation tallies
+        API-->>Invig: JSON live roster update
+        alt Candidate Violations >= 3
+            Invig->>Invig: Highlight Candidate card in RED (Audible Alert)
+            Invig->>API: POST /admin/recruitment/warn-or-terminate/ (action='TERMINATE')
+            API->>DB: Update Attempt status='TERMINATED'
+        end
+    end

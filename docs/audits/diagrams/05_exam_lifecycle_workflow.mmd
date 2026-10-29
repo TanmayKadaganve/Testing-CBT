@@ -1,0 +1,24 @@
+stateDiagram-v2
+    [*] --> Unauthenticated
+    Unauthenticated --> Authenticated: Student Login
+    Authenticated --> Instructions: View Rules & Code of Conduct
+    Instructions --> InProgress: Start Exam (Attempt Created)
+    
+    state InProgress {
+        [*] --> Section1_MCQ
+        Section1_MCQ --> AutoSaveMCQ: Candidate selects option
+        AutoSaveMCQ --> Section1_MCQ: DB confirms Answer saved
+        Section1_MCQ --> Section2_Coding: Section 1 Time Expiry or Next
+        
+        Section2_Coding --> CodeDrafting: Typing in Monaco/Ace
+        CodeDrafting --> AutoSaveDraft: 2s Debounce / Switch Language
+        AutoSaveDraft --> Section2_Coding: Draft Saved in DB
+        Section2_Coding --> CodeExecution: Click 'Run Code' (Sample Cases)
+        CodeExecution --> Section2_Coding: Show Execution Results
+        Section2_Coding --> FinalSubmission: Candidate Clicks 'Submit Exam'
+    }
+
+    FinalSubmission --> Completed: Modal Confirmation (status='COMPLETED')
+    Completed --> Feedback: Post-Exam Survey (Optional)
+    Feedback --> Done: Summary Screen (Score Locked)
+    Done --> [*]

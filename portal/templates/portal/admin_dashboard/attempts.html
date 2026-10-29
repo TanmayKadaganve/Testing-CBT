@@ -1,0 +1,127 @@
+{% extends "portal/admin_dashboard/base.html" %}
+
+{% block title %}Attempts & Results{% endblock %}
+
+{% block breadcrumbs %}
+  <span class="cbt-breadcrumbs-separator">/</span>
+  <span class="cbt-breadcrumbs-current">Attempts & Results</span>
+{% endblock %}
+
+{% block content %}
+<div class="cbt-page-header">
+  <div class="cbt-page-title-wrap">
+    <h1>Exam Attempts & Scoring</h1>
+    <p>Monitor candidate attempt lifecycles, submission timestamps, and calculated scores.</p>
+  </div>
+  {% if perms.portal.view_attempt %}
+  <div class="cbt-page-actions">
+    <a href="{% url 'admin:portal_attempt_changelist' %}" class="cbt-btn cbt-btn-secondary">
+      Admin Table & Export
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+<div class="cbt-card">
+  <!-- Filters Toolbar -->
+  <form method="get" class="cbt-toolbar">
+    <div class="cbt-filter-group">
+      <select name="exam_id" class="cbt-select" onchange="this.form.submit()">
+        <option value="">All Exams</option>
+        {% for exam in all_exams %}
+          <option value="{{ exam.id }}" {% if exam_filter == exam.id|stringformat:"s" %}selected{% endif %}>{{ exam.title }}</option>
+        {% endfor %}
+      </select>
+
+      <select name="status" class="cbt-select" onchange="this.form.submit()">
+        <option value="">All Statuses</option>
+        <option value="submitted" {% if status_filter == 'submitted' %}selected{% endif %}>Submitted Only</option>
+        <option value="in_progress" {% if status_filter == 'in_progress' %}selected{% endif %}>In Progress Only</option>
+      </select>
+
+      <button type="submit" class="cbt-btn cbt-btn-secondary cbt-btn-sm">Filter</button>
+      {% if exam_filter or status_filter %}
+        <a href="{% url 'dashboard_attempts' %}" class="cbt-btn cbt-btn-secondary cbt-btn-sm" style="color:#ef4444;">Clear</a>
+      {% endif %}
+    </div>
+  </form>
+
+  <div class="cbt-table-responsive">
+    <table class="cbt-table">
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Exam</th>
+          <th>Started</th>
+          <th>Submitted</th>
+          <th>Status</th>
+          <th>MCQ Score</th>
+          <th>Coding Score</th>
+          <th>Total Score</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in scored_attempts %}
+          <tr>
+            <td>
+              <b>{{ item.attempt.student.usn }}</b><br>
+              <span style="font-size:12px;color:#64748b;">{{ item.attempt.student.name }}</span>
+            </td>
+            <td><b>{{ item.attempt.exam.title }}</b></td>
+            <td>{{ item.attempt.started_at|date:"d M Y, H:i" }}</td>
+            <td>{{ item.attempt.submitted_at|date:"d M Y, H:i"|default:"&mdash;" }}</td>
+            <td>
+              {% if item.attempt.submitted_at %}
+                <span class="cbt-badge green">Submitted</span>
+              {% else %}
+                <span class="cbt-badge amber">In Progress</span>
+              {% endif %}
+            </td>
+            <td>{{ item.mcq_earned }}</td>
+            <td>{{ item.code_earned }}</td>
+            <td>
+              <b style="font-size:15px;color:#0284c7;">{{ item.total_score }}</b>
+            </td>
+            <td>
+              <a href="{% url 'student_detail' item.attempt.student.id %}" class="cbt-btn cbt-btn-secondary cbt-btn-sm">Student History</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="9">
+              <div class="cbt-empty-state">
+                <svg class="cbt-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                <div class="cbt-empty-title">No Exam Attempts Recorded</div>
+                <div class="cbt-empty-desc">Attempts will appear as candidates begin their assessments.</div>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if attempts_page.has_other_pages %}
+    <div class="cbt-pagination">
+      <span>Showing {{ attempts_page.start_index }} to {{ attempts_page.end_index }} of {{ total_count }} attempt{{ total_count|pluralize }}</span>
+      <div class="cbt-page-links">
+        {% if attempts_page.has_previous %}
+          <a href="?page={{ attempts_page.previous_page_number }}{% if exam_filter %}&exam_id={{ exam_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="cbt-page-link">&laquo;</a>
+        {% endif %}
+        {% for num in attempts_page.paginator.page_range %}
+          {% if attempts_page.number == num %}
+            <span class="cbt-page-link active">{{ num }}</span>
+          {% elif num > attempts_page.number|add:'-3' and num < attempts_page.number|add:'3' %}
+            <a href="?page={{ num }}{% if exam_filter %}&exam_id={{ exam_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="cbt-page-link">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+        {% if attempts_page.has_next %}
+          <a href="?page={{ attempts_page.next_page_number }}{% if exam_filter %}&exam_id={{ exam_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="cbt-page-link">&raquo;</a>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

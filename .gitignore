@@ -1,0 +1,16 @@
+venv/
+__pycache__/
+*.pyc
+db.sqlite3
+*.sqlite3*
+*.bak*
+backups/
+.env
+*.log
+.worker-heartbeats/
+/bug01_demo_canary.txt
+.vscode/
+staticfiles/
+media/
+.venv/
+.DS_Store

@@ -1,0 +1,135 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block breadcrumbs %}
+  <li><a href="{% url 'admin:portal_student_changelist' %}">Students</a></li>
+  <li aria-current="page">Import Students</li>
+{% endblock %}
+
+{% block content %}
+<div id="content-main" style="max-width: 900px;">
+  <!-- Instructions Card -->
+  <div class="pf-import-card">
+    <div class="pf-import-header">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="16" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+      </svg>
+      <h2>Before You Import</h2>
+    </div>
+    <ul class="pf-import-instructions-list">
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+        <span>Use an <b>.xlsx</b> or <b>.csv</b> spreadsheet file with columns named <b>USN</b>, <b>Name</b>, and <b>DOB</b>. The <b>Email</b> column is optional.</span>
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+        <span>Excel date cells are read directly. Text dates should follow the <b>DD-MM-YYYY</b> format (for example: <b>05-06-2005</b>).</span>
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+        <span>Existing students are matched and updated by <b>USN</b> without deleting attempts. If an exam is selected below, candidates will also be registered for it.</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Download Templates Toolbar -->
+  <div class="pf-import-actions">
+    <a href="{% url 'admin:portal_student_template' %}" class="pf-btn-secondary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+      <span>Download Blank Template (.xlsx)</span>
+    </a>
+    <a href="{% url 'admin:portal_student_dummy' %}" class="pf-btn-secondary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+        <polyline points="10 9 9 9 8 9"></polyline>
+      </svg>
+      <span>Download 30 Dummy Students (Dry Run)</span>
+    </a>
+  </div>
+
+  <!-- Upload and Configuration Card -->
+  <div class="pf-import-card">
+    <div class="pf-import-header">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="17 8 12 3 7 8"></polyline>
+        <line x1="12" y1="3" x2="12" y2="15"></line>
+      </svg>
+      <h2>Select Spreadsheet & Import Options</h2>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="pf-alert pf-alert-error" style="margin-bottom: 16px;">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+
+      <!-- File Dropzone -->
+      <div style="margin-bottom: 20px;">
+        <label for="{{ form.file.id_for_label }}" style="font-weight:600;margin-bottom:8px;display:block;">
+          {{ form.file.label }} <span style="color:#ef4444;">*</span>
+        </label>
+        {% if form.file.errors %}
+          <div class="pf-alert pf-alert-error" style="margin-bottom: 8px;">
+            {{ form.file.errors }}
+          </div>
+        {% endif %}
+        <div class="pf-file-dropzone" id="studentDropzone">
+          <svg class="pf-file-dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
+            <path d="M12 12v9"></path>
+            <path d="m16 16-4-4-4 4"></path>
+          </svg>
+          <div class="pf-file-dropzone-text">Click to browse file or drag and drop here</div>
+          <div class="pf-file-dropzone-sub">Supported formats: Microsoft Excel (.xlsx) or Comma-Separated Values (.csv)</div>
+          <input type="file" name="{{ form.file.html_name }}" id="{{ form.file.id_for_label }}" accept=".xlsx,.csv,.xlsm" required>
+          <div class="pf-file-selected-name" id="studentFileName"></div>
+        </div>
+      </div>
+
+      <!-- Exam Selection Field -->
+      {% if form.exam %}
+      <div style="margin-bottom: 20px;">
+        <label for="{{ form.exam.id_for_label }}" style="font-weight:600;margin-bottom:8px;display:block;">
+          {{ form.exam.label }}
+        </label>
+        {% if form.exam.errors %}
+          <div class="pf-alert pf-alert-error" style="margin-bottom: 8px;">
+            {{ form.exam.errors }}
+          </div>
+        {% endif %}
+        <div style="max-width: 480px;">
+          {{ form.exam }}
+        </div>
+        <p class="help" style="margin-top: 6px; font-size: 12.5px; color: #64748b;">
+          Optional. If chosen, all candidates in this batch will be automatically enrolled in this examination.
+        </p>
+      </div>
+      {% endif %}
+
+      <div class="submit-row" style="margin-top: 28px; padding: 0; background: transparent; border: none; box-shadow: none;">
+        <button type="submit" class="admin-quick-btn primary" style="padding: 10px 22px; font-size: 14px; cursor: pointer;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          Import Students
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

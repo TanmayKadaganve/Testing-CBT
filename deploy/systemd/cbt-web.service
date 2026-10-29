@@ -1,0 +1,26 @@
+[Unit]
+Description=PyForgeLabs CBT Web Application Server (Gunicorn)
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=notify
+User=cbtadmin
+Group=cbtadmin
+WorkingDirectory=/var/www/cbt
+EnvironmentFile=/etc/cbt/cbt.env
+ExecStart=/var/www/cbt/venv/bin/gunicorn -c deploy/gunicorn.conf.py config.wsgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=15
+Restart=on-failure
+RestartSec=3
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,58 @@
+{% extends "portal/admin_dashboard/base.html" %}
+
+{% block title %}Recruitment Drives — PyForgeLabs{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Recruitment Drives</h1>
+  <a href="/admin/recruitment/recruitmentdrive/add/" class="btn btn-primary">+ New Drive</a>
+</div>
+
+{% if drives %}
+<div class="table-responsive">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Drive Name</th>
+        <th>Company</th>
+        <th>Role</th>
+        <th>Status</th>
+        <th>Enrolled</th>
+        <th>Selected</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for drive in drives %}
+      <tr>
+        <td><a href="{% url 'recruitment:drive_detail' drive.id %}">{{ drive.name }}</a></td>
+        <td>{{ drive.company_name }}</td>
+        <td>{{ drive.role }}</td>
+        <td>
+          <span class="badge badge-{{ drive.status|lower }}">
+            {{ drive.get_status_display }}
+          </span>
+        </td>
+        <td>{{ drive.enrolled_count }}</td>
+        <td>{{ drive.selected_count }}</td>
+        <td>{{ drive.start_date }}</td>
+        <td>{{ drive.end_date }}</td>
+        <td>
+          <a href="{% url 'recruitment:live_invigilator_console' drive.id %}" class="btn btn-sm btn-primary">Live Monitor</a>
+          <a href="{% url 'recruitment:drive_detail' drive.id %}" class="btn btn-sm btn-outline">View</a>
+          <a href="{% url 'recruitment:candidate_roster' drive.id %}" class="btn btn-sm btn-outline">Candidates</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state">
+  <p>No recruitment drives yet. <a href="/admin/recruitment/recruitmentdrive/add/">Create the first drive</a>.</p>
+</div>
+{% endif %}
+{% endblock %}
+

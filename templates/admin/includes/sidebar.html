@@ -1,0 +1,289 @@
+{% load i18n static %}
+<!-- Unified PyForgeLabs College Placement Simulator Sidebar (260px wide, fixed full-height) -->
+<aside class="cbt-sidebar cbt-admin-sidebar pf-admin-sidebar" id="cbtSidebar" aria-label="{% translate 'Main Navigation' %}">
+  <!-- Brand Header: Single unified link to Overview -->
+  <div class="cbt-sidebar-brand pf-sidebar-brand">
+    <a href="{% url 'dashboard_overview' %}" class="cbt-brand-link pf-brand-link pyforge-admin-brand" title="PyForgeLabs — College Placement Simulator">
+      <div class="cbt-brand-logo pf-brand-logo pyforge-logo-badge">P</div>
+      <div class="cbt-brand-text pf-brand-text pyforge-brand-title-wrap">
+        <span class="cbt-brand-title pf-brand-title pyforge-brand-title">PyForgeLabs</span>
+        <span class="cbt-brand-subtitle pf-brand-sub pyforge-brand-sub">College Placement Simulator</span>
+      </div>
+    </a>
+    <button class="cbt-sidebar-collapse-btn pf-sidebar-collapse-btn" id="cbtCollapseBtn" title="Collapse sidebar" aria-label="Collapse sidebar">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Navigation Menu -->
+  <nav class="cbt-sidebar-nav pf-sidebar-nav">
+    <!-- 1. PRIMARY WORKFLOWS (5 Core Destinations) -->
+    <div class="cbt-nav-group pf-nav-group cbt-admin-nav-group">
+      <div class="cbt-nav-group-title pf-nav-group-title cbt-admin-nav-title">MAIN WORKFLOWS</div>
+      <ul class="cbt-nav-list pf-nav-list cbt-admin-nav-list">
+        <!-- 1. Overview -->
+        <li class="cbt-nav-item pf-nav-item {% if active_nav == 'overview' or request.path == '/admin/dashboard/' %}active{% endif %}">
+          <a href="{% url 'dashboard_overview' %}" class="cbt-admin-nav-link pf-nav-link {% if active_nav == 'overview' or request.path == '/admin/dashboard/' %}active{% endif %}">
+            <span class="cbt-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            </span>
+            <span class="cbt-nav-text">Overview</span>
+          </a>
+        </li>
+
+        <!-- 2. Students / Candidates -->
+        {% if perms.portal.view_student %}
+        <li class="cbt-nav-item pf-nav-item {% if active_nav == 'students' or '/admin/dashboard/students/' in request.path or '/admin/portal/student/' in request.path and '/import/' not in request.path %}active{% endif %}">
+          <a href="{% url 'dashboard_students' %}" class="cbt-admin-nav-link pf-nav-link {% if active_nav == 'students' or '/admin/dashboard/students/' in request.path or '/admin/portal/student/' in request.path and '/import/' not in request.path %}active{% endif %}">
+            <span class="cbt-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </span>
+            <span class="cbt-nav-text">Students / Candidates</span>
+          </a>
+        </li>
+        {% endif %}
+
+        <!-- 3. Recruitment Drives -->
+        <li class="cbt-nav-item pf-nav-item {% if '/recruitment/admin/drives/' in request.path %}active{% endif %}">
+          <a href="{% url 'recruitment:drive_list' %}" class="cbt-admin-nav-link pf-nav-link {% if '/recruitment/admin/drives/' in request.path %}active{% endif %}">
+            <span class="cbt-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+            </span>
+            <span class="cbt-nav-text">Recruitment Drives</span>
+          </a>
+        </li>
+
+        <!-- 4. Interview Panel -->
+        <li class="cbt-nav-item pf-nav-item {% if '/recruitment/admin/interviews/' in request.path %}active{% endif %}">
+          <a href="{% url 'recruitment:interview_list' %}" class="cbt-admin-nav-link pf-nav-link {% if '/recruitment/admin/interviews/' in request.path %}active{% endif %}">
+            <span class="cbt-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            </span>
+            <span class="cbt-nav-text">Interview Panel</span>
+          </a>
+        </li>
+
+        <!-- 5. Results & Progression -->
+        {% if perms.portal.view_attempt %}
+        <li class="cbt-nav-item pf-nav-item {% if active_nav == 'attempts' or '/admin/dashboard/attempts/' in request.path or '/admin/portal/attempt/' in request.path %}active{% endif %}">
+          <a href="{% url 'dashboard_attempts' %}" class="cbt-admin-nav-link pf-nav-link {% if active_nav == 'attempts' or '/admin/dashboard/attempts/' in request.path or '/admin/portal/attempt/' in request.path %}active{% endif %}">
+            <span class="cbt-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </span>
+            <span class="cbt-nav-text">Results & Progression</span>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+
+    <!-- 2. COLLAPSIBLE GROUP A: ASSESSMENT SETUP -->
+    <details class="cbt-nav-group pf-nav-group cbt-admin-nav-group cbt-nav-collapsible" id="groupAssessmentSetup" {% if active_nav == 'exams' or active_nav == 'questions' or active_nav == 'coding' or '/admin/dashboard/exams/' in request.path or '/admin/portal/exam/' in request.path or '/admin/dashboard/questions/' in request.path or '/admin/portal/question/' in request.path and '/import/' not in request.path or '/admin/dashboard/coding/' in request.path or '/admin/portal/codingquestion/' in request.path and '/import/' not in request.path or '/admin/recruitment/interviewtemplate/' in request.path or '/admin/portal/testcase/' in request.path %}open{% endif %}>
+      <summary class="cbt-nav-group-title pf-nav-group-title cbt-admin-nav-title cbt-nav-summary">
+        <span>ASSESSMENT SETUP</span>
+        <svg class="cbt-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </summary>
+      <ul class="cbt-nav-list pf-nav-list cbt-admin-nav-list">
+        <!-- Exams & Sections -->
+        {% if perms.portal.view_exam or perms.portal.view_section %}
+        <li class="cbt-nav-item pf-nav-item {% if active_nav == 'exams' or '/admin/dashboard/exams/' in request.path or '/admin/portal/exam/' in request.path %}active{% endif %}">
+          <a href="{% url 'dashboard_exams' %}" class="cbt-admin-nav-link pf-nav-link {% if active_nav == 'exams' or '/admin/dashboard/exams/' in request.path or '/admin/portal/exam/' in request.path %}active{% endif %}">
+            <span class="cbt-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            </span>
+            <span class="cbt-nav-text">Exams & Sections</span>
+          </a>
+        </li>
+        {% endif %}
+
+        <!-- MCQ Questions -->
+        {% if perms.portal.view_question %}
+        <li class="cbt-nav-item pf-nav-item {% if active_nav == 'questions' or '/admin/dashboard/questions/' in request.path or '/admin/portal/question/' in request.path and '/import/' not in request.path %}active{% endif %}">
+          <a href="{% url 'dashboard_questions' %}" class="cbt-admin-nav-link pf-nav-link {% if active_nav == 'questions' or '/admin/dashboard/questions/' in request.path or '/admin/portal/question/' in request.path and '/import/' not in request.path %}active{% endif %}">
+            <span class="cbt-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            </span>
+            <span class="cbt-nav-text">MCQ Questions</span>
+          </a>
+        </li>
+        {% endif %}
+
+        <!-- Coding Assessments -->
+        {% if perms.portal.view_codingquestion %}
+        <li class="cbt-nav-item pf-nav-item {% if active_nav == 'coding' or '/admin/dashboard/coding/' in request.path or '/admin/portal/codingquestion/' in request.path and '/import/' not in request.path %}active{% endif %}">
+          <a href="{% url 'dashboard_coding' %}" class="cbt-admin-nav-link pf-nav-link {% if active_nav == 'coding' or '/admin/dashboard/coding/' in request.path or '/admin/portal/codingquestion/' in request.path and '/import/' not in request.path %}active{% endif %}">
+            <span class="cbt-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+            </span>
+            <span class="cbt-nav-text">Coding Assessments</span>
+          </a>
+        </li>
+        {% endif %}
+
+        <!-- Interview Rubrics -->
+        {% if perms.recruitment.view_interviewtemplate %}
+        <li class="cbt-nav-item pf-nav-item {% if '/admin/recruitment/interviewtemplate/' in request.path %}active{% endif %}">
+          <a href="{% url 'admin:recruitment_interviewtemplate_changelist' %}" class="cbt-admin-nav-link pf-nav-link {% if '/admin/recruitment/interviewtemplate/' in request.path %}active{% endif %}">
+            <span class="cbt-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            </span>
+            <span class="cbt-nav-text">Interview Rubrics</span>
+          </a>
+        </li>
+        {% endif %}
+
+        <!-- Test Cases -->
+        {% if perms.portal.view_testcase %}
+        <li class="cbt-nav-item pf-nav-item {% if '/admin/portal/testcase/' in request.path %}active{% endif %}">
+          <a href="{% url 'admin:portal_testcase_changelist' %}" class="cbt-admin-nav-link pf-nav-link {% if '/admin/portal/testcase/' in request.path %}active{% endif %}">
+            <span class="cbt-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+            </span>
+            <span class="cbt-nav-text">Test Cases</span>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </details>
+
+    <!-- 3. COLLAPSIBLE GROUP B: DATA OPERATIONS -->
+    {% if perms.portal.add_student or perms.portal.add_question or perms.portal.add_codingquestion or perms.portal.view_feedback %}
+    <details class="cbt-nav-group pf-nav-group cbt-admin-nav-group cbt-nav-collapsible" id="groupDataOps" {% if '/import/' in request.path or active_nav == 'feedback' or '/admin/dashboard/feedback/' in request.path or '/admin/portal/feedback/' in request.path %}open{% endif %}>
+      <summary class="cbt-nav-group-title pf-nav-group-title cbt-admin-nav-title cbt-nav-summary">
+        <span>DATA OPERATIONS</span>
+        <svg class="cbt-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </summary>
+      <ul class="cbt-nav-list pf-nav-list cbt-admin-nav-list">
+        {% if perms.portal.add_student %}
+        <li class="cbt-nav-item pf-nav-item {% if '/admin/portal/student/import/' in request.path %}active{% endif %}">
+          <a href="{% url 'admin:portal_student_import' %}" class="cbt-admin-nav-link pf-nav-link {% if '/admin/portal/student/import/' in request.path %}active{% endif %}">
+            <span class="cbt-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            </span>
+            <span class="cbt-nav-text">Import Students</span>
+          </a>
+        </li>
+        {% endif %}
+
+        {% if perms.portal.add_question %}
+        <li class="cbt-nav-item pf-nav-item {% if '/admin/portal/question/import/' in request.path %}active{% endif %}">
+          <a href="{% url 'admin:portal_question_import' %}" class="cbt-admin-nav-link pf-nav-link {% if '/admin/portal/question/import/' in request.path %}active{% endif %}">
+            <span class="cbt-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            </span>
+            <span class="cbt-nav-text">Import MCQ Questions</span>
+          </a>
+        </li>
+        {% endif %}
+
+        {% if perms.portal.add_codingquestion %}
+        <li class="cbt-nav-item pf-nav-item {% if '/admin/portal/codingquestion/import/' in request.path %}active{% endif %}">
+          <a href="{% url 'admin:portal_codingquestion_import' %}" class="cbt-admin-nav-link pf-nav-link {% if '/admin/portal/codingquestion/import/' in request.path %}active{% endif %}">
+            <span class="cbt-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            </span>
+            <span class="cbt-nav-text">Import Coding Questions</span>
+          </a>
+        </li>
+        {% endif %}
+
+        {% if perms.portal.view_feedback %}
+        <li class="cbt-nav-item pf-nav-item {% if active_nav == 'feedback' or '/admin/dashboard/feedback/' in request.path or '/admin/portal/feedback/' in request.path %}active{% endif %}">
+          <a href="{% url 'dashboard_feedback' %}" class="cbt-admin-nav-link pf-nav-link {% if active_nav == 'feedback' or '/admin/dashboard/feedback/' in request.path or '/admin/portal/feedback/' in request.path %}active{% endif %}">
+            <span class="cbt-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            </span>
+            <span class="cbt-nav-text">Feedback & Reports</span>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </details>
+    {% endif %}
+
+    <!-- 4. COLLAPSIBLE GROUP C: SYSTEM & AUDIT -->
+    <details class="cbt-nav-group pf-nav-group cbt-admin-nav-group cbt-nav-collapsible" id="groupSystemAudit" {% if active_nav == 'health' or active_nav == 'performance' or active_nav == 'integrity' or '/admin/dashboard/health/' in request.path or '/admin/dashboard/performance/' in request.path or '/admin/dashboard/integrity/' in request.path or '/admin/recruitment/auditlog/' in request.path %}open{% endif %}>
+      <summary class="cbt-nav-group-title pf-nav-group-title cbt-admin-nav-title cbt-nav-summary">
+        <span>SYSTEM & AUDIT</span>
+        <svg class="cbt-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </summary>
+      <ul class="cbt-nav-list pf-nav-list cbt-admin-nav-list">
+        <li class="cbt-nav-item pf-nav-item {% if active_nav == 'health' or request.path == '/admin/dashboard/health/' %}active{% endif %}">
+          <a href="{% url 'dashboard_health' %}" class="cbt-admin-nav-link pf-nav-link {% if active_nav == 'health' or request.path == '/admin/dashboard/health/' %}active{% endif %}">
+            <span class="cbt-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+            </span>
+            <span class="cbt-nav-text">System Health</span>
+          </a>
+        </li>
+        <li class="cbt-nav-item pf-nav-item {% if active_nav == 'performance' or request.path == '/admin/dashboard/performance/' %}active{% endif %}">
+          <a href="{% url 'dashboard_performance' %}" class="cbt-admin-nav-link pf-nav-link {% if active_nav == 'performance' or request.path == '/admin/dashboard/performance/' %}active{% endif %}">
+            <span class="cbt-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </span>
+            <span class="cbt-nav-text">Performance & Latency</span>
+          </a>
+        </li>
+        <li class="cbt-nav-item pf-nav-item {% if active_nav == 'integrity' or request.path == '/admin/dashboard/integrity/' %}active{% endif %}">
+          <a href="{% url 'dashboard_integrity' %}" class="cbt-admin-nav-link pf-nav-link {% if active_nav == 'integrity' or request.path == '/admin/dashboard/integrity/' %}active{% endif %}">
+            <span class="cbt-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            </span>
+            <span class="cbt-nav-text">Data Integrity</span>
+          </a>
+        </li>
+        {% if perms.recruitment.view_auditlog %}
+        <li class="cbt-nav-item pf-nav-item {% if '/admin/recruitment/auditlog/' in request.path %}active{% endif %}">
+          <a href="{% url 'admin:recruitment_auditlog_changelist' %}" class="cbt-admin-nav-link pf-nav-link {% if '/admin/recruitment/auditlog/' in request.path %}active{% endif %}">
+            <span class="cbt-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </span>
+            <span class="cbt-nav-text">Recruitment Audit Log</span>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </details>
+
+    <!-- 5. COLLAPSIBLE GROUP D: ACCESS MANAGEMENT -->
+    {% if perms.auth.view_user or perms.auth.view_group %}
+    <details class="cbt-nav-group pf-nav-group cbt-admin-nav-group cbt-nav-collapsible" id="groupAccessMgmt" {% if '/admin/auth/user/' in request.path or '/admin/auth/group/' in request.path %}open{% endif %}>
+      <summary class="cbt-nav-group-title pf-nav-group-title cbt-admin-nav-title cbt-nav-summary">
+        <span>ACCESS MANAGEMENT</span>
+        <svg class="cbt-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </summary>
+      <ul class="cbt-nav-list pf-nav-list cbt-admin-nav-list">
+        {% if perms.auth.view_user %}
+        <li class="cbt-nav-item pf-nav-item {% if '/admin/auth/user/' in request.path %}active{% endif %}">
+          <a href="{% url 'admin:auth_user_changelist' %}" class="cbt-admin-nav-link pf-nav-link {% if '/admin/auth/user/' in request.path %}active{% endif %}">
+            <span class="cbt-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </span>
+            <span class="cbt-nav-text">Users</span>
+          </a>
+        </li>
+        {% endif %}
+
+        {% if perms.auth.view_group %}
+        <li class="cbt-nav-item pf-nav-item {% if '/admin/auth/group/' in request.path %}active{% endif %}">
+          <a href="{% url 'admin:auth_group_changelist' %}" class="cbt-admin-nav-link pf-nav-link {% if '/admin/auth/group/' in request.path %}active{% endif %}">
+            <span class="cbt-nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </span>
+            <span class="cbt-nav-text">Groups</span>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </details>
+    {% endif %}
+  </nav>
+
+  <!-- Sidebar Footer -->
+  <div class="cbt-sidebar-footer pf-sidebar-footer">
+    <span>PyForgeLabs v2.0</span>
+    <span>College Placement</span>
+  </div>
+</aside>

@@ -1,0 +1,128 @@
+{% extends "portal/admin_dashboard/base.html" %}
+
+{% block title %}Code Submissions{% endblock %}
+
+{% block breadcrumbs %}
+  <span class="cbt-breadcrumbs-separator">/</span>
+  <span class="cbt-breadcrumbs-current">Code Submissions</span>
+{% endblock %}
+
+{% block content %}
+<div class="cbt-page-header">
+  <div class="cbt-page-title-wrap">
+    <h1>Code Submissions</h1>
+    <p>Automated code execution logs, verdicts, test case metrics, and scores.</p>
+  </div>
+  {% if perms.portal.view_codesubmission %}
+  <div class="cbt-page-actions">
+    <a href="{% url 'admin:portal_codesubmission_changelist' %}" class="cbt-btn cbt-btn-secondary">
+      Admin Table
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+<div class="cbt-card">
+  <!-- Filter Toolbar -->
+  <form method="get" class="cbt-toolbar">
+    <div class="cbt-filter-group">
+      <select name="verdict" class="cbt-select" onchange="this.form.submit()">
+        <option value="">All Verdicts</option>
+        {% for v in verdicts %}
+          {% if v %}
+            <option value="{{ v }}" {% if verdict_filter == v %}selected{% endif %}>{{ v }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+
+      <button type="submit" class="cbt-btn cbt-btn-secondary cbt-btn-sm">Filter</button>
+      {% if verdict_filter %}
+        <a href="{% url 'dashboard_submissions' %}" class="cbt-btn cbt-btn-secondary cbt-btn-sm" style="color:#ef4444;">Clear</a>
+      {% endif %}
+    </div>
+  </form>
+
+  <div class="cbt-table-responsive">
+    <table class="cbt-table">
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Challenge</th>
+          <th>Language</th>
+          <th>Verdict</th>
+          <th>Test Cases Passed</th>
+          <th>Score</th>
+          <th>Submitted At</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sub in submissions %}
+          <tr>
+            <td>
+              <b>{{ sub.attempt.student.usn }}</b><br>
+              <span style="font-size:12px;color:#64748b;">{{ sub.attempt.student.name }}</span>
+            </td>
+            <td>
+              <b>{{ sub.question.title }}</b><br>
+              <span style="font-size:12px;color:#64748b;">{{ sub.question.section.exam.title }}</span>
+            </td>
+            <td><b>{{ sub.language|upper }}</b></td>
+            <td>
+              {% if sub.verdict == "Accepted" %}
+                <span class="cbt-badge green">Accepted</span>
+              {% elif sub.verdict == "Wrong Answer" %}
+                <span class="cbt-badge red">Wrong Answer</span>
+              {% elif sub.verdict == "Time Limit Exceeded" %}
+                <span class="cbt-badge amber">Time Limit</span>
+              {% else %}
+                <span class="cbt-badge slate">{{ sub.verdict|default:"Pending" }}</span>
+              {% endif %}
+            </td>
+            <td>
+              <b>{{ sub.passed }}</b> of {{ sub.total }}
+            </td>
+            <td>
+              <b>{{ sub.score }}</b> / {{ sub.question.marks }}
+            </td>
+            <td>
+              <span style="font-size:12.5px;">{{ sub.created_at|date:"d M Y, H:i:s" }}</span>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="7">
+              <div class="cbt-empty-state">
+                <svg class="cbt-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+                <div class="cbt-empty-title">No Code Submissions Recorded</div>
+                <div class="cbt-empty-desc">Submissions from coding sections will appear here with verdict logs.</div>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if submissions.has_other_pages %}
+    <div class="cbt-pagination">
+      <span>Showing {{ submissions.start_index }} to {{ submissions.end_index }} of {{ total_count }} submission{{ total_count|pluralize }}</span>
+      <div class="cbt-page-links">
+        {% if submissions.has_previous %}
+          <a href="?page={{ submissions.previous_page_number }}{% if verdict_filter %}&verdict={{ verdict_filter }}{% endif %}" class="cbt-page-link">&laquo;</a>
+        {% endif %}
+        {% for num in submissions.paginator.page_range %}
+          {% if submissions.number == num %}
+            <span class="cbt-page-link active">{{ num }}</span>
+          {% elif num > submissions.number|add:'-3' and num < submissions.number|add:'3' %}
+            <a href="?page={{ num }}{% if verdict_filter %}&verdict={{ verdict_filter }}{% endif %}" class="cbt-page-link">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+        {% if submissions.has_next %}
+          <a href="?page={{ submissions.next_page_number }}{% if verdict_filter %}&verdict={{ verdict_filter }}{% endif %}" class="cbt-page-link">&raquo;</a>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

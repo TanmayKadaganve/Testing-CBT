@@ -1,0 +1,71 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Round Result — {{ round.name }}</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body{font-family:system-ui,sans-serif;background:#f4f6f9;color:#333;margin:0;padding:0}
+  .container{max-width:700px;margin:3rem auto;padding:0 1rem}
+  .card{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.1);padding:2rem}
+  .badge{display:inline-block;padding:.3em .8em;border-radius:12px;font-size:.9rem;font-weight:600}
+  .badge-pass{background:#e8f5e9;color:#1b5e20}
+  .badge-fail{background:#ffebee;color:#b71c1c}
+  .badge-absent{background:#fff3e0;color:#e65100}
+  .table{width:100%;border-collapse:collapse;margin:1.5rem 0}
+  .table th,.table td{padding:.75rem;border-bottom:1px solid #eee;text-align:left}
+  .btn{display:inline-block;padding:.5rem 1.25rem;border-radius:4px;text-decoration:none;font-size:.95rem;background:#1a237e;color:#fff}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <h1>{{ round.name }} — Result</h1>
+    <p><strong>Candidate:</strong> {{ enrollment.student.name }} ({{ enrollment.student.usn }})</p>
+    <p><strong>Drive:</strong> {{ enrollment.drive.name }}</p>
+
+    <div style="margin:1.5rem 0;text-align:center;">
+      <span class="badge badge-{{ result.decision|lower }}">
+        {{ result.display_decision }}
+      </span>
+    </div>
+
+    <table class="table">
+      <tbody>
+        <tr>
+          <th>Assessment Type</th>
+          <td>{{ round.get_round_type_display }}</td>
+        </tr>
+        {% if result.total_score is not None %}
+        <tr>
+          <th>Total Score</th>
+          <td>{{ result.total_score }} / {{ result.max_score }}</td>
+        </tr>
+        <tr>
+          <th>Percentage Score</th>
+          <td><strong>{{ result.percentage }}%</strong></td>
+        </tr>
+        {% endif %}
+        <tr>
+          <th>Result Status</th>
+          <td>
+            {% if not result.outcome_known %}
+            <span style="color:#8a5a00;font-weight:600;">This historical override needs administrator review</span>
+            {% elif result.passed %}
+            <span style="color:#2e7d32;font-weight:600;">Qualified for Next Stage</span>
+            {% else %}
+            <span style="color:#c62828;font-weight:600;">Did not qualify</span>
+            {% endif %}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="text-align:center;margin-top:2rem">
+      <a href="{% url 'recruitment:candidate_dashboard' %}" class="btn">Return to Dashboard</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>
+

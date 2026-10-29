@@ -1,0 +1,70 @@
+{% extends "portal/admin_dashboard/base.html" %}
+{% block title %}Interview Panel — {{ assignment.enrollment.student.usn }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Interview Evaluation</h1>
+  <p>Candidate: <strong>{{ assignment.enrollment.student.usn }} — {{ assignment.enrollment.student.name }}</strong></p>
+  <p>Round: <strong>{{ assignment.round.name }}</strong> | Template: <strong>{{ assignment.template.name|default:"No template" }}</strong></p>
+</div>
+
+{% if messages %}
+<ul class="messages">
+  {% for message in messages %}
+  <li class="{{ message.tags }}">{{ message }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<form method="post" action="">
+  {% csrf_token %}
+
+  {% for criterion in criteria %}
+  {% with existing=existing_evals|default_if_none:None %}
+  <div class="rubric-criterion" style="border:1px solid #ddd;padding:1rem;margin-bottom:1rem;border-radius:4px">
+    <h3>{{ criterion.name }} <small class="text-muted">(max {{ criterion.max_score }}, weight {{ criterion.weight }})</small></h3>
+    {% if criterion.description %}<p class="text-muted">{{ criterion.description }}</p>{% endif %}
+
+    {% if criterion.anchors_json %}
+    <details><summary>Scoring anchors</summary>
+      <ul>
+        {% for anchor in criterion.anchors_json %}
+        <li><strong>{{ anchor.score }}</strong> — {{ anchor.label }}: {{ anchor.description }}</li>
+        {% endfor %}
+      </ul>
+    </details>
+    {% endif %}
+
+    <div class="form-group" style="margin-top:.75rem">
+      <label>Score (0–{{ criterion.max_score }}):</label>
+      <input type="number" name="score_{{ criterion.pk }}" min="0" max="{{ criterion.max_score }}"
+        value="{{ existing_evals|default_if_none:{} }}" required style="width:80px">
+    </div>
+    <div class="form-group">
+      <label>Observations / Evidence:</label>
+      <textarea name="notes_{{ criterion.pk }}" rows="3" style="width:100%"
+        placeholder="Record specific, job-relevant observations for this criterion"></textarea>
+    </div>
+  </div>
+  {% endwith %}
+  {% endfor %}
+
+  <div class="form-group">
+    <label><strong>Overall Interview Notes (private, not shown to candidate):</strong></label>
+    <textarea name="interview_notes" rows="5" style="width:100%"
+      placeholder="General observations, follow-up questions asked, overall impression…"></textarea>
+  </div>
+
+  <div style="background:#fff3cd;padding:1rem;border-radius:4px;margin-bottom:1rem">
+    <strong>⚠ Note:</strong> Once submitted, this evaluation will be locked.
+    An administrator must unlock it for re-scoring. Submit only when complete.
+  </div>
+
+  <button class="btn btn-success" type="submit"
+    onclick="return confirm('Submit and lock this evaluation?')">
+    Submit Evaluation
+  </button>
+  <a href="{% url 'recruitment:interview_list' %}" class="btn btn-outline">Cancel</a>
+</form>
+{% endblock %}
+

@@ -1,0 +1,39 @@
+flowchart TD
+    START([Candidate Clicks 'Run' or 'Submit']) --> VALIDATE{Validate Request & Draft}
+    VALIDATE -->|Empty Code| ERR_EMPTY[Return Error: Code cannot be empty]
+    VALIDATE -->|Valid| CREATE_JOB[Create ExecutionJob in DB: Status 'PENDING']
+    
+    CREATE_JOB --> DISPATCH{Execution Mode}
+    DISPATCH -->|Async Worker| QUEUE[Worker claims job: Status 'RUNNING']
+    DISPATCH -->|Synchronous Fallback| RUNNER[Direct Sandbox Runner]
+    
+    QUEUE --> SETUP[Create Isolated /tmp/pyforgelabs_exec_* directory]
+    RUNNER --> SETUP
+    
+    SETUP --> LANG{Target Language}
+    
+    LANG -->|C / C++| COMPILE[Compile with gcc/g++ -O2 -Wall]
+    COMPILE -->|Compile Error| CE_FAIL[Status: COMPILE_ERROR<br/>Store compiler stderr]
+    COMPILE -->|Success| EXEC_LOOP
+    
+    LANG -->|Python 3| EXEC_LOOP[Initialize Test Case Iteration]
+    
+    EXEC_LOOP --> TEST_CASE[Fetch TestCase: input_data & expected_output]
+    TEST_CASE --> RUN_SANDBOX[Execute under Subprocess Sandbox:<br/>- RLIMIT_CPU: 2s<br/>- RLIMIT_AS: 128MB<br/>- stdin piped, stdout captured]
+    
+    RUN_SANDBOX --> OUT_CHECK{Outcome}
+    OUT_CHECK -->|Timeout| TLE[Status: TIME_LIMIT_EXCEEDED]
+    OUT_CHECK -->|Non-Zero Exit| RE[Status: RUNTIME_ERROR]
+    OUT_CHECK -->|Zero Exit| DIFF{Compare Output with Expected}
+    
+    DIFF -->|Mismatch| WA[Status: WRONG_ANSWER]
+    DIFF -->|Exact / Normalized Match| PASS[Status: PASSED]
+    
+    PASS & WA & TLE & RE --> MORE_TESTS{More Test Cases?}
+    MORE_TESTS -->|Yes| TEST_CASE
+    MORE_TESTS -->|No| AGGREGATE[Compute Total Score & Points]
+    
+    AGGREGATE --> PERSIST[Create CodeSubmission Record in DB]
+    CE_FAIL --> PERSIST
+    PERSIST --> CLEANUP[Remove /tmp scratch folder]
+    CLEANUP --> RESP[Return JSON breakdown to UI]

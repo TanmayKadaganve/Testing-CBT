@@ -1,0 +1,49 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Waiting Room — {{ round.name }}</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body{font-family:system-ui,sans-serif;background:#f4f6f9;color:#333;margin:0;padding:0}
+  .container{max-width:700px;margin:3rem auto;padding:0 1rem}
+  .card{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.1);padding:2rem;text-align:center}
+  .pulse{width:60px;height:60px;background:#1a237e;border-radius:50%;margin:1.5rem auto;animation:pulse 2s infinite}
+  @keyframes pulse{0%{transform:scale(0.95);box-shadow:0 0 0 0 rgba(26,35,126,0.7)}70%{transform:scale(1);box-shadow:0 0 0 15px rgba(26,35,126,0)}100%{transform:scale(0.95);box-shadow:0 0 0 0 rgba(26,35,126,0)}}
+  .meta-box{background:#f8f9fa;border-radius:6px;padding:1rem;margin:1.5rem 0;text-align:left}
+  .btn{display:inline-block;padding:.5rem 1.25rem;border-radius:4px;text-decoration:none;font-size:.95rem;cursor:pointer;border:none}
+  .btn-outline{background:#fff;border:1px solid #ccc;color:#333}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <div class="pulse"></div>
+    <h1>Interview Waiting Room</h1>
+    <p class="text-muted">Round: <strong>{{ round.name }}</strong> ({{ round.get_round_type_display }})</p>
+
+    <div class="meta-box">
+      <p><strong>Candidate:</strong> {{ enrollment.student.name }} ({{ enrollment.student.usn }})</p>
+      <p><strong>Drive:</strong> {{ round.drive.name }} ({{ round.drive.company_name }})</p>
+      {% if assignment %}
+      <p><strong>Assigned Evaluator:</strong> {{ assignment.interviewer.get_full_name|default:assignment.interviewer.username }}</p>
+      <p><strong>Scheduled Time:</strong> {{ assignment.scheduled_at|date:"d M Y H:i"|default:"Invigilator will call your turn" }}</p>
+      <p><strong>Status:</strong> {{ assignment.get_status_display }}</p>
+      {% else %}
+      <p><strong>Status:</strong> Waiting for interviewer panel assignment. Please remain present in the laboratory.</p>
+      {% endif %}
+    </div>
+
+    <p style="color:#555;font-size:0.95rem;">
+      Please remain seated at your assigned lab computer or interview desk.
+      The interviewer or lab coordinator will call you when ready.
+    </p>
+
+    <div style="margin-top:2rem">
+      <a href="{% url 'recruitment:candidate_dashboard' %}" class="btn btn-outline">← Back to Candidate Dashboard</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>
+

@@ -1,0 +1,70 @@
+{% extends "portal/admin_dashboard/base.html" %}
+
+{% block title %}Data Integrity{% endblock %}
+
+{% block breadcrumbs %}
+  <span class="cbt-breadcrumbs-separator">/</span>
+  <span class="cbt-breadcrumbs-current">Data Integrity</span>
+{% endblock %}
+
+{% block content %}
+<div class="cbt-page-header">
+  <div class="cbt-page-title-wrap">
+    <h1>Data Integrity & Audit Warnings</h1>
+    <p>Automated verification of exam schedules, question completeness, and candidate session integrity.</p>
+  </div>
+  <div class="cbt-page-actions">
+    <a href="{% url 'dashboard_integrity' %}" class="cbt-btn cbt-btn-primary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+      Re-run Audit
+    </a>
+  </div>
+</div>
+
+<div class="cbt-card">
+  {% if issues %}
+    <div class="cbt-table-responsive">
+      <table class="cbt-table">
+        <thead>
+          <tr>
+            <th>Severity</th>
+            <th>Category</th>
+            <th>Anomaly Description</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for issue in issues %}
+            <tr>
+              <td>
+                {% if issue.severity == 'Critical' %}
+                  <span class="cbt-badge red">Critical</span>
+                {% elif issue.severity == 'Warning' %}
+                  <span class="cbt-badge amber">Warning</span>
+                {% else %}
+                  <span class="cbt-badge blue">Notice</span>
+                {% endif %}
+              </td>
+              <td><b>{{ issue.type }}</b></td>
+              <td>{{ issue.message }}</td>
+              <td>
+                <a href="{{ issue.link }}" target="_blank" class="cbt-btn cbt-btn-secondary cbt-btn-sm">
+                  {{ issue.action }}
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="cbt-empty-state" style="padding:48px 20px;">
+      <div style="width:52px;height:52px;border-radius:50%;background:#ecfdf5;color:#10b981;display:flex;align-items:center;justify-content:center;margin-bottom:14px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      </div>
+      <div class="cbt-empty-title" style="color:#065f46;font-size:17px;">All Configurations Verified Clean</div>
+      <div class="cbt-empty-desc">No missing sections, broken schedules, orphan questions, or stale session tokens were detected in the database.</div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

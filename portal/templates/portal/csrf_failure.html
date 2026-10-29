@@ -1,0 +1,136 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="{% static 'portal/images/pyforgelabs-logo.png' %}">
+  <title>PyForgeLabs | Security Session Expired</title>
+  <style>
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 24px;
+      display: grid;
+      place-items: center;
+      background: #f3f6fa;
+      color: #172435;
+    }
+    .card {
+      width: min(100%, 620px);
+      padding: 40px 36px;
+      text-align: center;
+      background: #fff;
+      border: 1px solid #dce3eb;
+      border-top: 5px solid #d97706;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(22, 47, 78, .07);
+    }
+    .icon-wrap {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      background: #fef3c7;
+      color: #d97706;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: bold;
+    }
+    h1 {
+      margin: 0 0 12px;
+      color: #172435;
+      font-size: 24px;
+      font-weight: 700;
+    }
+    p {
+      margin: 0 0 16px;
+      color: #4b5563;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .reasons {
+      margin: 20px 0 28px;
+      padding: 16px 20px;
+      text-align: left;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #334155;
+    }
+    .reasons strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #0f172a;
+    }
+    .reasons ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .reasons li {
+      margin-bottom: 6px;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 22px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 6px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: none;
+    }
+    .btn-primary {
+      background: #2563eb;
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+    }
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="icon-wrap">!</div>
+    <h1>Security Session Expired</h1>
+    <p>Your request could not be processed because the security token for this form was out of date (CSRF verification).</p>
+
+    <div class="reasons">
+      <strong>Why does this happen?</strong>
+      <ul>
+        <li>You logged in or logged out in another tab, which refreshed your security session.</li>
+        <li>You returned to this page using the browser's <em>Back</em> button.</li>
+        <li>Both an <strong>Administrator</strong> and a <strong>Candidate</strong> account were opened simultaneously in the same regular browser window.</li>
+      </ul>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn btn-primary" onclick="window.location.reload();">Refresh Page & Try Again</button>
+      <a href="/" class="btn btn-secondary">Candidate Login</a>
+      <a href="/admin/" class="btn btn-secondary">Admin Console</a>
+    </div>
+  </main>
+</body>
+</html>
+

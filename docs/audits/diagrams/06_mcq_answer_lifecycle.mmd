@@ -1,0 +1,21 @@
+sequenceDiagram
+    autonumber
+    actor Candidate
+    participant UI as Exam UI (Vanilla JS)
+    participant API as /api/save-answer/
+    participant DB as Database (Answer Model)
+
+    Candidate->>UI: Clicks Radio Button for Option B
+    UI->>UI: Mark question palette item as "Answered" (Blue)
+    UI->>UI: Prepare JSON payload {question_id: 101, option_id: 402}
+    UI->>API: POST /api/save-answer/ (CSRF, JSON)
+    activate API
+    API->>API: Verify session & active Attempt status
+    API->>API: Validate Question belongs to current Section
+    API->>DB: Answer.objects.update_or_create(attempt, question, defaults={selected_option})
+    activate DB
+    DB-->>API: Row updated/created successfully
+    deactivate DB
+    API-->>UI: 200 OK {status: 'success', saved_at: '19:42:01'}
+    deactivate API
+    UI->>UI: Show unobtrusive green check indicator ("Saved")

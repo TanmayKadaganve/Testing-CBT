@@ -1,0 +1,42 @@
+{% extends "portal/admin_dashboard/base.html" %}
+{% block title %}My Interview Assignments{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>My Interview Assignments</h1>
+</div>
+
+{% if assignments %}
+<div class="table-responsive">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Candidate</th><th>Drive</th><th>Round</th>
+        <th>Status</th><th>Scheduled</th><th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for assignment in assignments %}
+      <tr>
+        <td>{{ assignment.enrollment.student.usn }} — {{ assignment.enrollment.student.name }}</td>
+        <td>{{ assignment.round.drive.name }}</td>
+        <td>{{ assignment.round.name }}</td>
+        <td><span class="badge badge-{{ assignment.status|lower }}">{{ assignment.get_status_display }}</span></td>
+        <td>{{ assignment.scheduled_at|date:"d M Y H:i"|default:"TBD" }}</td>
+        <td>
+          {% if not assignment.is_locked %}
+          <a href="{% url 'recruitment:interview_panel' assignment.id %}" class="btn btn-sm btn-primary">Evaluate</a>
+          {% else %}
+          <span class="text-muted">Submitted</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state"><p>No interview assignments currently assigned to you.</p></div>
+{% endif %}
+{% endblock %}
+

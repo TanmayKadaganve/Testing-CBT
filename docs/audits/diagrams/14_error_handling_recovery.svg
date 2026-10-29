@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 370" width="900" height="370">
+    <defs>
+        <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%" filterUnits="userSpaceOnUse">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+        </filter>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#64748b"/>
+        </marker>
+        <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1e293b"/>
+            <stop offset="100%" stop-color="#0f172a"/>
+        </linearGradient>
+    </defs>
+    
+    <!-- Background -->
+    <rect width="900" height="370" fill="#f8fafc"/>
+    
+    <!-- Header Banner -->
+    <rect width="900" height="70" fill="url(#headerGrad)"/>
+    <text x="30" y="32" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="18" font-weight="800" fill="#38bdf8">PYFORGELABS ARCHITECTURE &amp; WORKFLOWS</text>
+    <text x="30" y="52" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="600" fill="#ffffff">Diagram 14: Error Handling &amp; Fail-Safe Recovery &mdash; <tspan fill="#94a3b8">Zero Data Loss Resilience for High-Stress Lab Exams</tspan></text>
+    
+    <!-- Content Body -->
+    <g transform="translate(0, 80)">
+        
+    <rect x="30" y="10" width="840" height="260" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+    
+    <g transform="translate(50,30)">
+        <rect width="240" height="70" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Lab Power Cut / PC Reboot</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">Session restored upon re-login.\nAnswers &amp; drafts intact in DB.</text>
+    </g>
+    
+    <g transform="translate(320,30)">
+        <rect width="250" height="70" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">LAN Packet Drop During Save</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">Client queue retries with backoff.\nVisual amber state alerts user.</text>
+    </g>
+    
+    <g transform="translate(600,30)">
+        <rect width="240" height="70" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Stale CSRF on Back Navigation</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">pageshow listener refreshes token.\nBranded recovery screen.</text>
+    </g>
+
+    
+    <g transform="translate(50,130)">
+        <rect width="240" height="70" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Infinite Loop in Student Code</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">2s CPU limit triggers SIGKILL.\nStatus: TIME_LIMIT_EXCEEDED.</text>
+    </g>
+    
+    <g transform="translate(320,130)">
+        <rect width="250" height="70" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">SQLite Concurrency Contention</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">WAL mode + busy_timeout=15000\nprevents locked database errors.</text>
+    </g>
+    
+    <g transform="translate(600,130)">
+        <rect width="240" height="70" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Worker Crash / Power Glitch</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">Orphan job sweeper resets status\nand releases claimed jobs.</text>
+    </g>
+    
+    </g>
+</svg>

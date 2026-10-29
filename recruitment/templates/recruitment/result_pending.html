@@ -1,0 +1,25 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Evaluation in Progress</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body{font-family:system-ui,sans-serif;background:#f4f6f9;color:#333;margin:0;padding:0}
+  .container{max-width:600px;margin:4rem auto;padding:0 1rem;text-align:center}
+  .card{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.1);padding:2rem}
+  .btn{display:inline-block;padding:.5rem 1.25rem;border-radius:4px;text-decoration:none;font-size:.95rem;background:#1a237e;color:#fff;margin-top:1.5rem}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <h2>Evaluation In Progress</h2>
+    <p>The results for <strong>{{ round.name }}</strong> are currently being processed by the evaluation committee and coordinators.</p>
+    <p class="text-muted">Please check back on your candidate dashboard once the evaluation round concludes.</p>
+    <a href="{% url 'recruitment:candidate_dashboard' %}" class="btn">Return to Dashboard</a>
+  </div>
+</div>
+</body>
+</html>
+

@@ -1,0 +1,37 @@
+flowchart TD
+    subgraph UntrustedZone["Untrusted Network Zone"]
+        CLIENT["Candidate Browser / Potential Adversary"]
+    end
+
+    subgraph EdgeBoundary["Edge Security Boundary"]
+        FIREWALL["Local Subnet Firewall / Router (No WAN Access)"]
+        CSRF_CHECK["Django CSRF Protection Middleware"]
+        AUTH_GUARD["Authentication & Session Validation"]
+    end
+
+    subgraph AppBoundary["Application Authorization Boundary"]
+        ROLE_CHECK{User Role?}
+        STUDENT_SCOPE["Student Scope: Only Own Attempt & Active Section"]
+        STAFF_SCOPE["Staff Scope: Live Invigilation & Scoring"]
+        SUPER_SCOPE["Admin Scope: System Config & Audit Trail"]
+    end
+
+    subgraph ExecutionSandbox["Isolated Code Execution Boundary"]
+        TEMP_DIR["Chrooted / Isolated Scratch Dir (/tmp)"]
+        RLIMIT["OS Resource Limits (RLIMIT_CPU, RLIMIT_AS, RLIMIT_FSIZE)"]
+        SEC_EXEC["Non-Privileged Subprocess Runner (No Network, Timeout Kill)"]
+    end
+
+    subgraph DBBoundary["Persistence Boundary"]
+        ACID_DB[("SQLite Database (WAL Mode, Parameterized SQL Queries)")]
+    end
+
+    CLIENT --> FIREWALL --> CSRF_CHECK --> AUTH_GUARD
+    AUTH_GUARD --> ROLE_CHECK
+    
+    ROLE_CHECK -->|Student| STUDENT_SCOPE
+    ROLE_CHECK -->|Staff| STAFF_SCOPE
+    ROLE_CHECK -->|Superuser| SUPER_SCOPE
+    
+    STUDENT_SCOPE -->|"Submit Code"| TEMP_DIR --> RLIMIT --> SEC_EXEC
+    STUDENT_SCOPE & STAFF_SCOPE & SUPER_SCOPE --> ACID_DB

@@ -1,0 +1,117 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Recruitment Drives — PyForgeLabs</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body{font-family:system-ui,sans-serif;background:#f4f6f9;color:#333;margin:0;padding:0}
+  header{background:#1a237e;color:#fff;padding:1rem 2rem;display:flex;align-items:center;gap:1rem}
+  header h1{margin:0;font-size:1.25rem}
+  main{max-width:900px;margin:2rem auto;padding:0 1rem}
+  .card{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.1);padding:1.5rem;margin-bottom:1.5rem}
+  .card h2{margin:0 0 .5rem;font-size:1.1rem}
+  .meta{color:#666;font-size:.9rem;margin-bottom:.75rem}
+  .badge{display:inline-block;padding:.2em .7em;border-radius:12px;font-size:.8rem;font-weight:600}
+  .badge-active{background:#e8f5e9;color:#2e7d32}
+  .badge-closed{background:#ffebee;color:#c62828}
+  .badge-enrolled,.badge-eligible{background:#e3f2fd;color:#1565c0}
+  .badge-passed,.badge-promoted{background:#e8f5e9;color:#1b5e20}
+  .badge-failed,.badge-rejected{background:#ffebee;color:#b71c1c}
+  .badge-in_progress{background:#fff8e1;color:#f57f17}
+  .btn{display:inline-block;padding:.4rem 1rem;border-radius:4px;text-decoration:none;font-size:.9rem;cursor:pointer;border:none}
+  .btn-primary{background:#1a237e;color:#fff}
+  .btn-outline{background:#fff;border:1px solid #ccc;color:#333}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:.6rem .8rem;text-align:left;border-bottom:1px solid #eee}
+  th{font-weight:600;background:#f5f5f5}
+</style>
+</head>
+<body>
+<header>
+  <img src="{% static 'portal/images/pyforgelabs-logo.png' %}" alt="PyForgeLabs" height="32">
+  <h1>PyForgeLabs — Placement Simulator</h1>
+  <span style="margin-left:auto">{{ student.usn }} — {{ student.name }}</span>
+  <a href="{% url 'logout' %}" class="btn btn-outline" style="background:transparent;color:#fff;border-color:#fff">Logout</a>
+</header>
+
+<main>
+  <h1>My Recruitment Drives</h1>
+
+  {% if enrollments %}
+  {% for enrollment in enrollments %}
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <h2>{{ enrollment.drive.name }}</h2>
+        <div class="meta">
+          Company: <strong>{{ enrollment.drive.company_name }}</strong> &nbsp;|&nbsp;
+          Role: <strong>{{ enrollment.drive.role }}</strong>
+        </div>
+        <div>
+          Drive Status: <span class="badge badge-{{ enrollment.drive.status|lower }}">{{ enrollment.drive.get_status_display }}</span>
+          &nbsp;
+          Your Status: <span class="badge badge-{{ enrollment.status|lower }}">{{ enrollment.get_status_display }}</span>
+          {% if enrollment.final_selected %}
+          &nbsp;<span class="badge badge-passed">🎉 Selected</span>
+          {% endif %}
+        </div>
+      </div>
+      <div>
+        {% if enrollment.current_round %}
+        <a href="{% url 'recruitment:round_instructions' enrollment.drive.id enrollment.current_round.id %}"
+           class="btn btn-primary">Enter Round →</a>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if enrollment.round_results.all %}
+    <hr style="margin:1rem 0">
+    <h3 style="margin:0 0 .5rem;font-size:.95rem">Round Progress</h3>
+    <table>
+      <thead>
+        <tr><th>Round</th><th>Result</th><th>Score</th></tr>
+      </thead>
+      <tbody>
+        {% for rr in enrollment.round_results.all %}
+        <tr>
+          <td>{{ rr.round.name }}</td>
+          <td>
+            {% if rr.decision == 'PENDING' %}
+            <span class="badge badge-in_progress">Pending</span>
+            {% elif not rr.outcome_known %}
+            <span class="badge badge-in_progress">{{ rr.display_decision }}</span>
+            {% elif rr.passed %}
+            <span class="badge badge-passed">{{ rr.display_decision }}</span>
+            {% else %}
+            <span class="badge badge-failed">{{ rr.display_decision }}</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if rr.percentage is not None %}{{ rr.percentage }}%{% else %}—{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+
+    {% if enrollment.drive.instructions %}
+    <details style="margin-top:1rem">
+      <summary>Drive Instructions</summary>
+      <p style="margin:.5rem 0 0">{{ enrollment.drive.instructions }}</p>
+    </details>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  {% else %}
+  <div class="card">
+    <p>You are not currently enrolled in any active recruitment drive.</p>
+    <p>Please contact the placement coordinator if you believe this is an error.</p>
+  </div>
+  {% endif %}
+</main>
+</body>
+</html>
+

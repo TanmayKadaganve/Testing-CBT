@@ -1,0 +1,167 @@
+{% extends "portal/admin_dashboard/base.html" %}
+
+{% block title %}Students{% endblock %}
+
+{% block breadcrumbs %}
+  <span class="cbt-breadcrumbs-separator">/</span>
+  <span class="cbt-breadcrumbs-current">Students</span>
+{% endblock %}
+
+{% block content %}
+<div class="cbt-page-header">
+  <div class="cbt-page-title-wrap">
+    <h1>Student Management</h1>
+    <p>Manage candidate rosters, active sessions, and exam authorizations.</p>
+  </div>
+  <div class="cbt-page-actions">
+    {% if perms.portal.add_student %}
+    <a href="{% url 'admin:portal_student_add' %}" class="cbt-btn cbt-btn-primary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      Add Student
+    </a>
+    <a href="{% url 'admin:portal_student_import' %}" class="cbt-btn cbt-btn-secondary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+      Import Excel/CSV
+    </a>
+    {% endif %}
+    {% if perms.portal.view_student %}
+    <a href="{% url 'admin:portal_student_changelist' %}" class="cbt-btn cbt-btn-secondary" title="View in ModelAdmin Table">
+      Admin Table
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="cbt-card">
+  <!-- Filters & Search Toolbar -->
+  <form method="get" class="cbt-toolbar">
+    <div class="cbt-search-box">
+      <svg class="cbt-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" name="q" value="{{ search_query }}" placeholder="Search by USN, Name, or Email..." class="cbt-input">
+    </div>
+
+    <div class="cbt-filter-group">
+      <select name="status" class="cbt-select" onchange="this.form.submit()">
+        <option value="">All Statuses</option>
+        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active Only</option>
+        <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive Only</option>
+      </select>
+
+      <select name="exam_id" class="cbt-select" onchange="this.form.submit()">
+        <option value="">All Exams</option>
+        {% for exam in all_exams %}
+          <option value="{{ exam.id }}" {% if exam_filter == exam.id|stringformat:"s" %}selected{% endif %}>{{ exam.title }}</option>
+        {% endfor %}
+      </select>
+
+      <button type="submit" class="cbt-btn cbt-btn-secondary cbt-btn-sm">Filter</button>
+      {% if search_query or status_filter or exam_filter %}
+        <a href="{% url 'dashboard_students' %}" class="cbt-btn cbt-btn-secondary cbt-btn-sm" style="color:#ef4444;">Clear</a>
+      {% endif %}
+    </div>
+  </form>
+
+  <!-- Students Data Table -->
+  <div class="cbt-table-responsive">
+    <table class="cbt-table">
+      <thead>
+        <tr>
+          <th>USN</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Account Status</th>
+          <th>Active Session</th>
+          <th>Last Login</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for student in students %}
+          <tr>
+            <td><b>{{ student.usn }}</b></td>
+            <td>{{ student.name }}</td>
+            <td>{{ student.email|default:"&mdash;" }}</td>
+            <td>
+              {% if student.is_active %}
+                <span class="cbt-badge green">Active</span>
+              {% else %}
+                <span class="cbt-badge red">Inactive</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if student.active_token %}
+                <span class="cbt-badge amber" title="Logged in on {{ student.last_login_ip|default:'another device' }}">Online</span>
+              {% else %}
+                <span class="cbt-badge slate">Idle</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if student.last_login_at %}
+                <span style="font-size:12.5px;">{{ student.last_login_at|date:"d M Y, H:i" }}</span><br>
+                <span style="font-size:11px;color:#94a3b8;">{{ student.last_login_ip|default:"" }}</span>
+              {% else %}
+                <span style="color:#94a3b8;">Never</span>
+              {% endif %}
+            </td>
+            <td>
+              <div style="display:flex;gap:6px;align-items:center;">
+                <a href="{% url 'student_detail' student.id %}" class="cbt-btn cbt-btn-secondary cbt-btn-sm">View</a>
+
+                {% if student.active_token %}
+                  <form method="post" action="{% url 'reset_student_login' student.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="cbt-btn cbt-btn-secondary cbt-btn-sm" title="Clear token to allow student to log in again" data-confirm="Reset active session for {{ student.usn }}? This will log them out of any open test window.">Reset Session</button>
+                  </form>
+                {% endif %}
+
+                <form method="post" action="{% url 'toggle_student_active' student.id %}" style="display:inline;">
+                  {% csrf_token %}
+                  {% if student.is_active %}
+                    <button type="submit" class="cbt-btn cbt-btn-danger cbt-btn-sm" data-confirm="Deactivate {{ student.usn }}? They will not be able to log in.">Deactivate</button>
+                  {% else %}
+                    <button type="submit" class="cbt-btn cbt-btn-secondary cbt-btn-sm" style="color:#10b981;">Activate</button>
+                  {% endif %}
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="7">
+              <div class="cbt-empty-state">
+                <svg class="cbt-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                <div class="cbt-empty-title">No Students Found</div>
+                <div class="cbt-empty-desc">No student accounts matched your query or filter criteria.</div>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if students.has_other_pages %}
+    <div class="cbt-pagination">
+      <span>Showing {{ students.start_index }} to {{ students.end_index }} of {{ total_count }} student{{ total_count|pluralize }}</span>
+      <div class="cbt-page-links">
+        {% if students.has_previous %}
+          <a href="?page={{ students.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if exam_filter %}&exam_id={{ exam_filter }}{% endif %}" class="cbt-page-link">&laquo;</a>
+        {% endif %}
+
+        {% for num in students.paginator.page_range %}
+          {% if students.number == num %}
+            <span class="cbt-page-link active">{{ num }}</span>
+          {% elif num > students.number|add:'-3' and num < students.number|add:'3' %}
+            <a href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if exam_filter %}&exam_id={{ exam_filter }}{% endif %}" class="cbt-page-link">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+
+        {% if students.has_next %}
+          <a href="?page={{ students.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if exam_filter %}&exam_id={{ exam_filter }}{% endif %}" class="cbt-page-link">&raquo;</a>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

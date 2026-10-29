@@ -1,0 +1,100 @@
+{% extends "portal/admin_dashboard/base.html" %}
+
+{% block title %}Student Feedback{% endblock %}
+
+{% block breadcrumbs %}
+  <span class="cbt-breadcrumbs-separator">/</span>
+  <span class="cbt-breadcrumbs-current">Student Feedback</span>
+{% endblock %}
+
+{% block content %}
+<div class="cbt-page-header">
+  <div class="cbt-page-title-wrap">
+    <h1>Student Assessment Feedback</h1>
+    <p>Mandatory post-exam experience ratings, platform realism reviews, and student feedback comments.</p>
+  </div>
+  {% if perms.portal.view_feedback %}
+  <div class="cbt-page-actions">
+    <a href="{% url 'admin:portal_feedback_changelist' %}" class="cbt-btn cbt-btn-secondary">
+      Admin Table
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+<div class="cbt-card">
+  <div class="cbt-table-responsive">
+    <table class="cbt-table">
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Exam</th>
+          <th>Experience</th>
+          <th>Realism</th>
+          <th>Candidate Comments</th>
+          <th>Submitted At</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for fb in feedbacks %}
+          <tr>
+            <td>
+              <b>{{ fb.attempt.student.usn }}</b><br>
+              <span style="font-size:12px;color:#64748b;">{{ fb.attempt.student.name }}</span>
+            </td>
+            <td><b>{{ fb.attempt.exam.title }}</b></td>
+            <td>
+              <span class="cbt-badge amber">{{ fb.experience_rating }} / 5 &#9733;</span>
+            </td>
+            <td>
+              <span class="cbt-badge blue">{{ fb.realism_rating }} / 5 &#9733;</span>
+            </td>
+            <td style="max-width:350px;">
+              {% if fb.comments %}
+                <span style="font-size:13px;color:#1e293b;">{{ fb.comments }}</span>
+              {% else %}
+                <span style="color:#94a3b8;font-size:12px;">No written comments</span>
+              {% endif %}
+            </td>
+            <td>
+              <span style="font-size:12.5px;">{{ fb.created_at|date:"d M Y, H:i" }}</span>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="6">
+              <div class="cbt-empty-state">
+                <svg class="cbt-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                <div class="cbt-empty-title">No Student Feedback Recorded</div>
+                <div class="cbt-empty-desc">Feedback is submitted mandatorily by candidates right before viewing their score card.</div>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if feedbacks.has_other_pages %}
+    <div class="cbt-pagination">
+      <span>Showing {{ feedbacks.start_index }} to {{ feedbacks.end_index }} of {{ total_count }} response{{ total_count|pluralize }}</span>
+      <div class="cbt-page-links">
+        {% if feedbacks.has_previous %}
+          <a href="?page={{ feedbacks.previous_page_number }}" class="cbt-page-link">&laquo;</a>
+        {% endif %}
+        {% for num in feedbacks.paginator.page_range %}
+          {% if feedbacks.number == num %}
+            <span class="cbt-page-link active">{{ num }}</span>
+          {% elif num > feedbacks.number|add:'-3' and num < feedbacks.number|add:'3' %}
+            <a href="?page={{ num }}" class="cbt-page-link">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+        {% if feedbacks.has_next %}
+          <a href="?page={{ feedbacks.next_page_number }}" class="cbt-page-link">&raquo;</a>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

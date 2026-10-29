@@ -1,0 +1,99 @@
+{% extends "portal/admin_dashboard/base.html" %}
+
+{% block title %}Integrity Events — {{ drive.name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Integrity Events — {{ drive.name }}</h1>
+  <a href="{% url 'recruitment:drive_detail' drive.id %}" class="btn btn-outline">← Back to Drive</a>
+</div>
+
+<p class="text-muted" style="background:#fff3cd;padding:0.75rem;border-radius:4px;">
+  <strong>Notice on Exam Integrity:</strong> Browser focus, visibility, and fullscreen indicators are recorded as operational signals for human review. They do not constitute autonomous proof of cheating. Always review context, system events, and invigilator observations before taking disciplinary action.
+</p>
+
+<!-- Filter Bar -->
+<form method="get" class="filter-bar" style="margin:1rem 0;display:flex;gap:1rem;align-items:center;">
+  <select name="event_type">
+    <option value="">All Event Types</option>
+    {% for val, label in event_type_choices %}
+    <option value="{{ val }}" {% if event_type_filter == val %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+
+  <select name="reviewed">
+    <option value="">All Review Statuses</option>
+    <option value="no" {% if reviewed_filter == 'no' %}selected{% endif %}>Unreviewed Only</option>
+    <option value="yes" {% if reviewed_filter == 'yes' %}selected{% endif %}>Reviewed Only</option>
+  </select>
+
+  <button class="btn btn-outline" type="submit">Filter</button>
+  <a href="{% url 'recruitment:integrity_events' drive.id %}" class="btn btn-outline">Clear</a>
+</form>
+
+{% if page.object_list %}
+<div class="table-responsive">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Candidate</th>
+        <th>Round</th>
+        <th>Event Type</th>
+        <th>Occurred At</th>
+        <th>Client IP</th>
+        <th>Details</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for event in page.object_list %}
+      <tr>
+        <td>
+          {% if event.enrollment %}
+          <a href="{% url 'recruitment:candidate_detail_view' event.enrollment.id %}">
+            {{ event.enrollment.student.usn }} — {{ event.enrollment.student.name }}
+          </a>
+          {% else %}
+          —
+          {% endif %}
+        </td>
+        <td>{{ event.round.name|default:"—" }}</td>
+        <td><strong>{{ event.get_event_type_display }}</strong></td>
+        <td>{{ event.occurred_at|date:"d M Y H:i:s" }}</td>
+        <td><code>{{ event.client_ip|default:"—" }}</code></td>
+        <td>
+          {% if event.context %}
+          <small>{{ event.context }}</small>
+          {% else %}
+          —
+          {% endif %}
+        </td>
+        <td>
+          {% if event.reviewed %}
+          <span class="badge badge-active" title="{{ event.review_note }}">Reviewed by {{ event.reviewed_by.username }}</span>
+          {% else %}
+          <span class="badge badge-closed">Unreviewed</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Pagination -->
+{% if page.has_other_pages %}
+<div class="pagination">
+  {% if page.has_previous %}<a href="?page={{ page.previous_page_number }}&event_type={{ event_type_filter }}&reviewed={{ reviewed_filter }}">← Prev</a>{% endif %}
+  Page {{ page.number }} of {{ page.paginator.num_pages }}
+  {% if page.has_next %}<a href="?page={{ page.next_page_number }}&event_type={{ event_type_filter }}&reviewed={{ reviewed_filter }}">Next →</a>{% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+  <p>No integrity events recorded matching the criteria.</p>
+</div>
+{% endif %}
+{% endblock %}
+

@@ -1,0 +1,686 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="{% static 'portal/images/pyforgelabs-logo.png' %}">
+<title>PyForgeLabs | {{ exam.title }} - {{ section.title }}</title>
+<style>
+  * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  html, body { height: 100%; }
+  body { margin: 0; color: #172435; background: #f3f6fa; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* Topbar */
+  .topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px 24px;
+            background: #fff; color: #172435; padding: 10px 22px;
+            border-bottom: 1px solid #dce3eb; box-shadow: 0 2px 8px rgba(22, 47, 78, .06); flex: 0 0 auto; }
+  .topbar > div:first-child { font-size: 17px; font-weight: 600; }
+  .topbar .timer { margin-left: auto; padding: 6px 12px; color: #344256; font-size: 14px;
+                    font-weight: 700; background: #f3f6fa; border: 1px solid #dce3eb; border-radius: 6px; white-space: nowrap; }
+  .topbar button { padding: 8px 18px; border: 0; border-radius: 6px; cursor: pointer;
+                   background: #e65100; color: #fff; font-size: 14px; font-weight: 600; transition: background 0.15s; }
+  .topbar button:hover:not(:disabled) { background: #cf4500; }
+  .topbar button:disabled { opacity: .7; cursor: not-allowed; }
+
+  /* Question Navigation Tabs */
+  .tabs { width: 100%; max-width: 1650px; flex: 0 0 auto; margin: 0 auto; padding: 10px 16px 0; display: flex; gap: 6px; }
+  .tabs button { padding: 8px 16px; border: 1px solid #d3deeb; border-bottom: 0;
+                 background: #eef3f9; color: #475569; cursor: pointer; border-radius: 6px 6px 0 0;
+                 font-size: 13px; font-weight: 600; transition: all 0.15s ease; }
+  .tabs button:hover { background: #e2e8f0; color: #1e293b; }
+  .tabs button.active { background: #fff; border-color: #cbd5e1; color: #1d4ed8; border-top: 3px solid #2563eb; padding-top: 6px; }
+
+  /* Main Two-Column Layout */
+  .main { display: flex; align-items: stretch; gap: 14px; width: 100%; max-width: 1650px;
+          flex: 1 1 auto; min-height: 0; margin: 0 auto; padding: 0 16px 14px; }
+  .panel { background: #fff; border: 1px solid #dce3eb; border-radius: 8px;
+           box-shadow: 0 4px 16px rgba(22, 47, 78, .05); padding: 20px; overflow: auto; }
+  .left { flex: 1; min-width: 0; min-height: 0; border-top-left-radius: 0; }
+  .right { flex: 1.25; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+
+  /* Problem Description */
+  h1 { margin: 0 0 6px; font-size: 20px; color: #0f172a; font-weight: 700; }
+  h2 { margin: 16px 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; font-weight: 700; }
+  pre.block { background: #f8fafc; padding: 12px; border: 1px solid #e2e8f0; border-radius: 6px; margin: 0;
+              white-space: pre-wrap; font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace; font-size: 13px; color: #1e293b; }
+  .text { white-space: pre-wrap; color: #334155; line-height: 1.6; font-size: 14px; }
+
+  /* Editor Toolbar */
+  .editor-toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+  .editor-toolbar label { font-size: 13px; font-weight: 600; color: #475569; display: flex; align-items: center; gap: 6px; }
+  select { font-size: 13px; font-weight: 600; border: 1px solid #cbd5e1; border-radius: 6px;
+           padding: 6px 10px; color: #1e293b; background: #f8fafc; cursor: pointer; outline: none; }
+  select:focus { border-color: #2563eb; background: #fff; }
+  .lang-badge { display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 4px;
+                background: #e0f2fe; color: #0369a1; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+  .tool-btn { background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; padding: 5px 10px;
+              border-radius: 5px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+  .tool-btn:hover { background: #e2e8f0; color: #0f172a; }
+  .save-status { margin-left: auto; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+
+  /* Code Editor Container with Synchronized Line Numbers */
+  .editor-wrapper {
+    flex: 1 1 0; min-height: 240px; display: flex; border: 1px solid #cbd5e1;
+    border-radius: 6px; overflow: hidden; background: #ffffff; position: relative;
+    font-family: 'Cascadia Code', 'Fira Code', Consolas, 'SF Mono', Menlo, Monaco, monospace;
+    font-size: 13.5px; line-height: 1.5;
+  }
+  .line-numbers {
+    width: 44px; padding: 12px 6px 12px 0; text-align: right; background: #f8fafc;
+    color: #94a3b8; border-right: 1px solid #e2e8f0; user-select: none;
+    overflow: hidden; flex: 0 0 auto; white-space: pre-wrap; font-size: 12.5px;
+  }
+  #code {
+    flex: 1 1 auto; width: 100%; height: 100%; margin: 0; padding: 12px 14px;
+    border: none; outline: none; resize: none; background: transparent; color: #0f172a;
+    font-family: inherit; font-size: inherit; line-height: inherit; white-space: pre;
+    overflow: auto; tab-size: 4;
+  }
+
+  /* Dark Theme for Editor */
+  .editor-wrapper.dark {
+    background: #0f172a; border-color: #334155;
+  }
+  .editor-wrapper.dark .line-numbers {
+    background: #0b1120; color: #475569; border-color: #1e293b;
+  }
+  .editor-wrapper.dark #code {
+    color: #f1f5f9; caret-color: #38bdf8;
+  }
+
+  /* Stdin & Actions */
+  .input-label { margin: 10px 0 4px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #64748b; }
+  #stdin { height: 60px; resize: vertical; width: 100%; font-family: 'Cascadia Code', Consolas, monospace;
+           font-size: 13px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; color: #1e293b; outline: none; }
+  #stdin:focus { border-color: #2563eb; }
+
+  .actions { margin: 8px 0; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .actions button { min-height: 36px; padding: 0 18px; border-radius: 6px; cursor: pointer;
+                    color: #fff; font-size: 13px; font-weight: 600; border: none; transition: all 0.15s; }
+  #runBtn { background: #2563eb; }
+  #runBtn:hover:not(:disabled) { background: #1d4ed8; }
+  #submitBtn { background: #ea580c; }
+  #submitBtn:hover:not(:disabled) { background: #c2410c; }
+  .actions button:disabled { background: #94a3b8; cursor: not-allowed; }
+
+  /* Output Console */
+  #output { min-height: 80px; max-height: 180px; overflow: auto; flex: 0 0 auto; background: #0f172a;
+            color: #f8fafc; padding: 12px; border-radius: 6px; font-family: 'Cascadia Code', Consolas, monospace;
+            font-size: 13px; line-height: 1.45; white-space: pre-wrap; }
+  .ok { color: #4ade80; font-weight: 600; }
+  .bad { color: #f87171; font-weight: 600; }
+  .warn { color: #fbbf24; font-weight: 600; }
+
+  @media (max-width: 900px) {
+    body { overflow: auto; }
+    .topbar { padding: 10px 14px; flex-wrap: wrap; }
+    .main { flex-direction: column; }
+    .left, .right { min-height: 440px; }
+    .editor-wrapper { min-height: 280px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>{{ student.name }} ({{ student.usn }}) &nbsp;|&nbsp; {{ section.title }}</div>
+  <div class="timer">Time left: <span id="timer">--:--</span></div>
+  <form method="post" action="{% url 'submit_exam' %}" id="examSubmit"
+        onsubmit="return confirm('Submit the entire examination now? You will not be able to return to your answers.');">
+    {% csrf_token %}
+    <button type="submit" id="examSubmitBtn" disabled>
+      <span id="submitLabel">Submit Exam</span>
+    </button>
+  </form>
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="main">
+  <!-- Left Column: Problem Details -->
+  <div class="panel left">
+    <h1 id="qTitle"></h1>
+    <div id="qMarks" style="color:#64748b;font-size:13px;font-weight:600;margin-bottom:12px;"></div>
+    <h2>Problem Statement</h2><div class="text" id="qStatement"></div>
+    <h2>Input Format</h2><div class="text" id="qInFmt"></div>
+    <h2>Output Format</h2><div class="text" id="qOutFmt"></div>
+    <h2>Constraints</h2><div class="text" id="qCons"></div>
+    <h2>Sample Input</h2><pre class="block" id="qSampleIn"></pre>
+    <h2>Sample Output</h2><pre class="block" id="qSampleOut"></pre>
+  </div>
+
+  <!-- Right Column: Code Editor & Console -->
+  <div class="panel right">
+    <div class="editor-toolbar">
+      <label for="lang">Language:
+        <select id="lang">
+          {% for l in languages %}
+            <option value="{{ l.id }}" data-highlight="{{ l.highlight_mode }}">{{ l.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <span id="langBadge" class="lang-badge"></span>
+      <button type="button" id="resetBtn" class="tool-btn" title="Reset to default starter template">↺ Reset Code</button>
+      <button type="button" id="themeBtn" class="tool-btn" title="Toggle Light/Dark Theme">🌓 Theme</button>
+      <span id="saved" class="save-status"></span>
+    </div>
+
+    <!-- Code Editor with Line Numbers -->
+    <div class="editor-wrapper" id="editorWrapper">
+      <div class="line-numbers" id="lineNumbers">1</div>
+      <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
+    </div>
+
+    <div class="input-label">Custom Standard Input (for Run)</div>
+    <textarea id="stdin" spellcheck="false" placeholder="Input passed to stdin when running code..."></textarea>
+
+    <div class="actions">
+      <button id="runBtn" type="button">▶ Run Code</button>
+      <button id="submitBtn" type="button">✔ Submit Solution</button>
+      <span id="status" style="font-size:13px;font-weight:600;color:#475569;"></span>
+    </div>
+
+    <div id="output">Execution output will appear here.</div>
+  </div>
+</div>
+
+{{ questions|json_script:"qdata" }}
+
+<script>
+const QUESTIONS = JSON.parse(document.getElementById("qdata").textContent);
+const CSRF = "{{ csrf_token }}";
+const URL_SAVE = "{% url 'save_code' %}";
+const URL_RUN = "{% url 'code_run' %}?async=1";
+const URL_SUBMIT = "{% url 'code_submit' %}?async=1";
+
+let secondsLeft = {{ seconds_left }};
+let secondsToSubmit = {{ seconds_to_submit }};
+let current = 0;
+let saveTimer = null;
+let currentLanguage = "";
+
+// State structure:
+// state[q.id] = {
+//   active_lang: "python",
+//   starter_codes: { "python": "...", "c": "...", "cpp": "..." },
+//   drafts: { "python": { code: "...", version: 1 }, ... },
+//   stdin: "..."
+// }
+const state = {};
+QUESTIONS.forEach(q => {
+  const draftsCopy = {};
+  if (q.drafts) {
+    Object.keys(q.drafts).forEach(lang => {
+      draftsCopy[lang] = { code: q.drafts[lang].code, version: q.drafts[lang].version || 1 };
+    });
+  }
+
+  // Ensure active language has an entry
+  const activeLang = q.active_language || "python";
+  if (!draftsCopy[activeLang]) {
+    draftsCopy[activeLang] = {
+      code: q.code || (q.starter_codes ? q.starter_codes[activeLang] : ""),
+      version: q.version || 1
+    };
+  }
+
+  state[q.id] = {
+    active_lang: activeLang,
+    starter_codes: q.starter_codes || {},
+    drafts: draftsCopy,
+    stdin: q.sample_input || ""
+  };
+});
+
+const $ = id => document.getElementById(id);
+
+function fmt(s) {
+  s = Math.max(0, s);
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  return (h ? h + ":" : "") + String(m).padStart(2, "0") + ":" + String(sec).padStart(2, "0");
+}
+
+function formatConstraints(value) {
+  const superscripts = {"0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴",
+                        "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹",
+                        "+": "⁺", "-": "⁻"};
+  return (value || "-")
+    .replace(/\\leq?\b/g, "≤")
+    .replace(/\\geq?\b/g, "≥")
+    .replace(/\\neq\b/g, "≠")
+    .replace(/\\times\b/g, "×")
+    .replace(/\\cdot\b/g, "·")
+    .replace(/\\pm\b/g, "±")
+    .replace(/\^\{?([+-]?\d+)\}?/g, (_, exponent) =>
+      Array.from(exponent, character => superscripts[character] || character).join("")
+    )
+    .replace(/\n\s*\n+/g, "\n")
+    .trim();
+}
+
+function tick() {
+  $("timer").textContent = fmt(secondsLeft);
+  if (secondsLeft <= 0) { location.reload(); return; }
+  secondsLeft--;
+  if (secondsToSubmit > 0) {
+    $("submitLabel").textContent = "Submit Exam (" + fmt(secondsToSubmit) + ")";
+    secondsToSubmit--;
+  } else {
+    $("submitLabel").textContent = "Submit Exam";
+    $("examSubmitBtn").disabled = false;
+  }
+}
+tick();
+setInterval(tick, 1000);
+
+function qid() { return QUESTIONS[current].id; }
+
+// Synchronize line numbers gutter
+function updateLineNumbers() {
+  const code = $("code").value;
+  const lineCount = code.split("\n").length;
+  let nums = "";
+  for (let i = 1; i <= lineCount; i++) {
+    nums += i + "\n";
+  }
+  $("lineNumbers").textContent = nums;
+}
+
+$("code").addEventListener("scroll", () => {
+  $("lineNumbers").scrollTop = $("code").scrollTop;
+});
+
+// Update language badge
+function updateLanguageBadge(langId) {
+  const opt = $("lang").querySelector('option[value="' + langId + '"]');
+  const label = opt ? opt.textContent : langId.toUpperCase();
+  $("langBadge").textContent = label;
+}
+
+// Remember current editor text in state for the active language
+function rememberCurrentLanguageCode() {
+  if (!QUESTIONS.length) return;
+  const id = qid();
+  const s = state[id];
+  const lang = s.active_lang;
+  if (!s.drafts[lang]) {
+    s.drafts[lang] = { code: $("code").value, version: 1 };
+  } else {
+    s.drafts[lang].code = $("code").value;
+  }
+  s.stdin = $("stdin").value;
+}
+
+// Switch language handler (Independent draft loading)
+function handleLanguageChange(newLang) {
+  rememberCurrentLanguageCode();
+  const id = qid();
+  const s = state[id];
+  s.active_lang = newLang;
+  currentLanguage = newLang;
+  $("lang").value = newLang;
+  updateLanguageBadge(newLang);
+
+  // Check if student already has a draft for this language
+  if (s.drafts[newLang] && typeof s.drafts[newLang].code === "string") {
+    $("code").value = s.drafts[newLang].code;
+    setSaveStatus("Draft restored", "#0284c7");
+  } else {
+    // Fallback to starter scaffold for this question and language
+    const scaffold = s.starter_codes[newLang] || "// Write your code here\n";
+    s.drafts[newLang] = { code: scaffold, version: 1 };
+    $("code").value = scaffold;
+    setSaveStatus("Loaded starter code", "#0284c7");
+  }
+
+  updateLineNumbers();
+  // Trigger immediate autosave to persist this language selection
+  triggerImmediateSave();
+}
+
+$("lang").addEventListener("change", e => {
+  handleLanguageChange(e.target.value);
+});
+
+// Reset to starter template
+$("resetBtn").onclick = () => {
+  const id = qid();
+  const s = state[id];
+  const lang = s.active_lang;
+  const opt = $("lang").querySelector('option[value="' + lang + '"]');
+  const langName = opt ? opt.textContent : lang;
+
+  if (confirm("Reset " + langName + " code to the original starter template? Your current edits in " + langName + " will be replaced.")) {
+    const starter = s.starter_codes[lang] || "// Write your code here\n";
+    $("code").value = starter;
+    if (s.drafts[lang]) {
+      s.drafts[lang].code = starter;
+      s.drafts[lang].version = (s.drafts[lang].version || 1) + 1;
+    } else {
+      s.drafts[lang] = { code: starter, version: 1 };
+    }
+    updateLineNumbers();
+    setSaveStatus("Reset to starter code", "#d97706");
+    triggerImmediateSave();
+  }
+};
+
+// Toggle light/dark editor theme
+const THEME_KEY = "pyforge_editor_theme";
+let isDarkTheme = localStorage.getItem(THEME_KEY) === "dark";
+function applyTheme(dark) {
+  $("editorWrapper").classList.toggle("dark", dark);
+  $("themeBtn").textContent = dark ? "☀️ Light" : "🌓 Dark";
+  localStorage.setItem(THEME_KEY, dark ? "dark" : "light");
+}
+applyTheme(isDarkTheme);
+$("themeBtn").onclick = () => {
+  isDarkTheme = !isDarkTheme;
+  applyTheme(isDarkTheme);
+};
+
+// Switch question tab
+function showQuestion(i) {
+  if (QUESTIONS.length) rememberCurrentLanguageCode();
+  current = i;
+  const q = QUESTIONS[i], s = state[q.id];
+
+  $("qTitle").textContent = (i + 1) + ". " + q.title;
+  $("qMarks").textContent = q.marks + " marks";
+  $("qStatement").textContent = q.statement;
+  $("qInFmt").textContent = q.input_format || "-";
+  $("qOutFmt").textContent = q.output_format || "-";
+  $("qCons").textContent = formatConstraints(q.constraints);
+  $("qSampleIn").textContent = q.sample_input || "-";
+  $("qSampleOut").textContent = q.sample_output || "-";
+
+  // Load active language and draft
+  const lang = s.active_lang || "python";
+  currentLanguage = lang;
+  $("lang").value = lang;
+  updateLanguageBadge(lang);
+
+  const activeDraft = s.drafts[lang] ? s.drafts[lang].code : (s.starter_codes[lang] || "");
+  $("code").value = activeDraft;
+  $("stdin").value = s.stdin;
+  $("output").textContent = "Execution output will appear here.";
+  $("status").textContent = "";
+  setSaveStatus("Saved on server", "#16a34a");
+
+  updateLineNumbers();
+  document.querySelectorAll("#tabs button").forEach((b, n) => b.classList.toggle("active", n === i));
+}
+
+function buildTabs() {
+  $("tabs").innerHTML = "";
+  QUESTIONS.forEach((q, i) => {
+    const b = document.createElement("button");
+    b.textContent = "Q" + (i + 1);
+    b.onclick = () => showQuestion(i);
+    $("tabs").appendChild(b);
+  });
+}
+
+function setSaveStatus(text, color) {
+  $("saved").textContent = text;
+  $("saved").style.color = color;
+}
+
+function post(url, payload) {
+  return fetch(url, {
+    method: "POST",
+    headers: {"Content-Type": "application/json", "X-CSRFToken": CSRF},
+    body: JSON.stringify(payload),
+  }).then(r => r.json().catch(() => ({ok: false, error: "Server response error"})));
+}
+
+function buildPayload() {
+  rememberCurrentLanguageCode();
+  const id = qid();
+  const s = state[id];
+  const lang = s.active_lang;
+  const draftObj = s.drafts[lang] || { code: $("code").value, version: 1 };
+  draftObj.version = (draftObj.version || 1) + 1;
+  return {
+    question_id: id,
+    language: lang,
+    code: $("code").value,
+    stdin: $("stdin").value,
+    version: draftObj.version
+  };
+}
+
+function triggerImmediateSave() {
+  clearTimeout(saveTimer);
+  setSaveStatus("Saving...", "#d97706");
+  const pl = buildPayload();
+  post(URL_SAVE, pl).then(r => {
+    if (r.ok) {
+      setSaveStatus("Saved on server", "#16a34a");
+    } else {
+      setSaveStatus("Save failed: " + (r.error || "error"), "#dc2626");
+    }
+  }).catch(() => {
+    setSaveStatus("Network error: reconnecting...", "#dc2626");
+  });
+}
+
+function autosave() {
+  updateLineNumbers();
+  clearTimeout(saveTimer);
+  setSaveStatus("Saving...", "#d97706");
+  saveTimer = setTimeout(() => {
+    const pl = buildPayload();
+    post(URL_SAVE, pl).then(r => {
+      if (r.ok) {
+        setSaveStatus("Saved on server", "#16a34a");
+      } else {
+        setSaveStatus("Save failed: " + (r.error || "error"), "#dc2626");
+      }
+    }).catch(() => {
+      setSaveStatus("Network error: reconnecting...", "#dc2626");
+    });
+  }, 1000);
+}
+
+$("code").addEventListener("input", autosave);
+$("stdin").addEventListener("input", () => rememberCurrentLanguageCode());
+
+// Indentation Keyboard Shortcuts: Tab, Shift-Tab, Enter auto-indent
+$("code").addEventListener("keydown", e => {
+  const textarea = e.target;
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const val = textarea.value;
+
+  if (e.key === "Tab") {
+    e.preventDefault();
+    if (e.shiftKey) {
+      // Shift-Tab: Dedent 4 spaces
+      const lineStart = val.lastIndexOf("\n", start - 1) + 1;
+      if (val.slice(lineStart, lineStart + 4) === "    ") {
+        textarea.value = val.slice(0, lineStart) + val.slice(lineStart + 4);
+        textarea.selectionStart = textarea.selectionEnd = Math.max(lineStart, start - 4);
+        autosave();
+      }
+    } else {
+      // Tab: Insert 4 spaces
+      textarea.value = val.slice(0, start) + "    " + val.slice(end);
+      textarea.selectionStart = textarea.selectionEnd = start + 4;
+      autosave();
+    }
+  } else if (e.key === "Enter") {
+    // Enter: Carry indentation from preceding line
+    e.preventDefault();
+    const lineStart = val.lastIndexOf("\n", start - 1) + 1;
+    const currentLine = val.slice(lineStart, start);
+    const indentMatch = currentLine.match(/^\s*/);
+    let indent = indentMatch ? indentMatch[0] : "";
+
+    // Extra indentation if ending with { or :
+    const trimmed = currentLine.trim();
+    if (trimmed.endsWith("{") || trimmed.endsWith(":")) {
+      indent += "    ";
+    }
+
+    textarea.value = val.slice(0, start) + "\n" + indent + val.slice(end);
+    textarea.selectionStart = textarea.selectionEnd = start + 1 + indent.length;
+    autosave();
+  }
+});
+
+function busy(on, text) {
+  $("runBtn").disabled = on;
+  $("submitBtn").disabled = on;
+  $("resetBtn").disabled = on;
+  $("lang").disabled = on;
+  $("status").textContent = text || "";
+}
+
+function pollJob(jobId, onComplete) {
+  const pollUrl = "/exam/code/job/" + jobId + "/";
+  let attempts = 0;
+  const interval = setInterval(() => {
+    attempts++;
+    if (attempts > 75) {
+      clearInterval(interval);
+      busy(false, "");
+      $("output").textContent = "Execution timed out waiting for server worker.";
+      return;
+    }
+    fetch(pollUrl, {headers: {"X-CSRFToken": CSRF}})
+      .then(r => r.json())
+      .then(job => {
+        if (!job.ok) {
+          clearInterval(interval);
+          busy(false, "");
+          $("output").textContent = job.error || "Error checking job status.";
+          return;
+        }
+        if (job.status === "QUEUED") {
+          $("status").textContent = "Queued in worker pool...";
+        } else if (job.status === "RUNNING") {
+          $("status").textContent = "Running program in sandbox...";
+        } else {
+          clearInterval(interval);
+          busy(false, "");
+          onComplete(job);
+        }
+      })
+      .catch(() => {
+        $("status").textContent = "Reconnecting to server...";
+      });
+  }, 600);
+}
+
+// Run Code Action
+$("runBtn").onclick = () => {
+  busy(true, "Queuing execution...");
+  const pl = buildPayload();
+  post(URL_RUN, pl).then(r => {
+    if (!r.ok) {
+      busy(false, "");
+      $("output").innerHTML = "";
+      $("output").textContent = r.error || "Error executing code.";
+      return;
+    }
+    if (r.status === "QUEUED" || r.status === "RUNNING") {
+      pollJob(r.job_id, job => {
+        let out = "";
+        if (job.status === "TIMED_OUT") out = "Time limit exceeded (" + (job.duration_ms ? (job.duration_ms / 1000).toFixed(2) + "s" : "") + ")";
+        else if (job.verdict === "Compilation Error") out = "Compilation Error:\n" + (job.stderr || job.error_message || "");
+        else out = (job.stdout || "") + (job.stderr ? "\n" + job.stderr : "");
+        $("output").textContent = out || "(no output)";
+      });
+      return;
+    }
+    busy(false, "");
+    let out = "";
+    if (r.status === "timeout") out = "Time limit exceeded";
+    else if (r.status === "compile_error") out = "Compilation Error:\n" + (r.stderr || "");
+    else out = (r.stdout || "") + (r.stderr ? "\n" + r.stderr : "");
+    $("output").textContent = out || "(no output)";
+  }).catch(() => {
+    busy(false, "");
+    $("output").textContent = "Network error: failed to contact server.";
+  });
+};
+
+// Submit Code Action
+$("submitBtn").onclick = () => {
+  busy(true, "Submitting to judge...");
+  const pl = buildPayload();
+  post(URL_SUBMIT, pl).then(r => {
+    if (!r.ok) {
+      busy(false, "");
+      const box = $("output");
+      box.innerHTML = "";
+      box.textContent = r.error || "Submission failed.";
+      return;
+    }
+    const renderSubmitResult = res => {
+      const box = $("output");
+      box.innerHTML = "";
+      const head = document.createElement("div");
+      head.className = res.verdict === "Accepted" ? "ok" : "bad";
+      head.textContent = res.verdict + " - " + res.passed + "/" + res.total +
+                         " test cases passed (Score: " + res.score + ")";
+      box.appendChild(head);
+
+      if (res.verdict === "Compilation Error") {
+        const errBlock = document.createElement("pre");
+        errBlock.style.color = "#f87171";
+        errBlock.style.marginTop = "8px";
+        errBlock.textContent = res.stderr || res.error_message || "Compiler error";
+        box.appendChild(errBlock);
+      }
+
+      (res.results || []).forEach(t => {
+        const line = document.createElement("div");
+        line.className = t.verdict === "Passed" ? "ok" : "bad";
+        line.textContent = "Test case " + t.n + (t.sample ? " (sample)" : "") + ": " + t.verdict;
+        box.appendChild(line);
+      });
+    };
+
+    if (r.status === "QUEUED" || r.status === "RUNNING") {
+      pollJob(r.job_id, job => {
+        renderSubmitResult(job);
+      });
+      return;
+    }
+    busy(false, "");
+    renderSubmitResult(r);
+  }).catch(() => {
+    busy(false, "");
+    $("output").textContent = "Network error: failed to submit solution.";
+  });
+};
+
+// Back-Forward cache invalidation
+window.addEventListener("pageshow", e => { if (e.persisted) location.reload(); });
+
+// Flush draft before leaving
+window.addEventListener("beforeunload", () => {
+  rememberCurrentLanguageCode();
+  clearTimeout(saveTimer);
+  fetch(URL_SAVE, {
+    method: "POST",
+    headers: {"Content-Type": "application/json", "X-CSRFToken": CSRF},
+    body: JSON.stringify(buildPayload()),
+    keepalive: true,
+    credentials: "same-origin"
+  }).catch(() => {});
+});
+
+if (QUESTIONS.length) {
+  buildTabs();
+  showQuestion(0);
+} else {
+  document.querySelector(".main").innerHTML = '<div class="panel locked"><h1>No coding questions available</h1>This section has no coding questions assigned.</div>';
+}
+</script>
+<script src="{% static 'portal/js/integrity_monitor.js' %}"></script>
+</body>
+</html>

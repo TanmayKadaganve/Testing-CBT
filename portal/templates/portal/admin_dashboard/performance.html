@@ -1,0 +1,131 @@
+{% extends "portal/admin_dashboard/base.html" %}
+
+{% block title %}Performance & Latency{% endblock %}
+
+{% block breadcrumbs %}
+  <span class="cbt-breadcrumbs-separator">/</span>
+  <span class="cbt-breadcrumbs-current">Performance & Latency</span>
+{% endblock %}
+
+{% block content %}
+<div class="cbt-page-header">
+  <div class="cbt-page-title-wrap">
+    <h1>Performance & Latency Monitoring</h1>
+    <p>Request timing from this web worker process only (PID {{ perf.worker_pid }}); samples reset when it restarts.</p>
+  </div>
+  <div class="cbt-page-actions">
+    <a href="{% url 'dashboard_performance' %}" class="cbt-btn cbt-btn-primary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+      Refresh Telemetry
+    </a>
+  </div>
+</div>
+
+<!-- Metrics summary boxes -->
+<div class="cbt-perf-stats">
+  <div class="cbt-perf-box">
+    <div class="cbt-perf-val">{{ perf.sample_count }}</div>
+    <div class="cbt-perf-label">Requests Processed</div>
+  </div>
+  <div class="cbt-perf-box">
+    <div class="cbt-perf-val">
+      {% if perf.avg_latency_ms %}{{ perf.avg_latency_ms }} ms{% else %}N/A{% endif %}
+    </div>
+    <div class="cbt-perf-label">Average Latency</div>
+  </div>
+  <div class="cbt-perf-box">
+    <div class="cbt-perf-val">
+      {% if perf.median_latency_ms %}{{ perf.median_latency_ms }} ms{% else %}<span style="font-size:14px;color:#94a3b8;">Insufficient data</span>{% endif %}
+    </div>
+    <div class="cbt-perf-label">Median Latency (p50)</div>
+  </div>
+  <div class="cbt-perf-box">
+    <div class="cbt-perf-val">
+      {% if perf.p95_latency_ms %}{{ perf.p95_latency_ms }} ms{% else %}<span style="font-size:14px;color:#94a3b8;">Insufficient data</span>{% endif %}
+    </div>
+    <div class="cbt-perf-label">p95 Latency</div>
+  </div>
+  <div class="cbt-perf-box">
+    <div class="cbt-perf-val {% if perf.slow_requests_count > 0 %}cbt-text-warning{% else %}cbt-text-success{% endif %}">
+      {{ perf.slow_requests_count }}
+    </div>
+    <div class="cbt-perf-label">Slow Requests (&ge;500ms)</div>
+  </div>
+  <div class="cbt-perf-box">
+    <div class="cbt-perf-val {% if perf.count_5xx > 0 %}cbt-text-danger{% else %}cbt-text-success{% endif %}">
+      {{ perf.count_5xx }}
+    </div>
+    <div class="cbt-perf-label">Server 5xx Errors</div>
+  </div>
+</div>
+
+<!-- Information note -->
+<div class="cbt-alert cbt-alert-info" style="margin-bottom:16px;">
+  <span><b>Instrumentation:</b> Measurements are captured by <code>PerformanceMonitoringMiddleware</code> into a thread-safe in-memory ring buffer (bounded to 1,000 samples). Zero database overhead, zero disk writes, and zero exposure of sensitive student data.</span>
+</div>
+
+<!-- Recent Request Log Table -->
+<div class="cbt-card">
+  <div class="cbt-card-header">
+    <div>
+      <h2 class="cbt-card-title">Recent In-Flight & Handled Requests</h2>
+      <div class="cbt-card-subtitle">Last 30 server request execution traces</div>
+    </div>
+  </div>
+  <div class="cbt-table-responsive">
+    <table class="cbt-table">
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>HTTP Method</th>
+          <th>Endpoint Path</th>
+          <th>Status Code</th>
+          <th>Server Duration</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for req in perf.recent_requests %}
+          <tr>
+            <td>
+              <span style="font-size:12.5px;">{{ req.timestamp|date:"H:i:s" }}</span>
+            </td>
+            <td>
+              <span class="cbt-badge {% if req.method == 'GET' %}blue{% elif req.method == 'POST' %}green{% else %}slate{% endif %}">
+                {{ req.method }}
+              </span>
+            </td>
+            <td>
+              <code style="font-family:monospace;font-size:12.5px;">{{ req.path }}</code>
+            </td>
+            <td>
+              {% if req.status_code < 300 %}
+                <span class="cbt-badge green">{{ req.status_code }}</span>
+              {% elif req.status_code < 400 %}
+                <span class="cbt-badge slate">{{ req.status_code }}</span>
+              {% elif req.status_code < 500 %}
+                <span class="cbt-badge amber">{{ req.status_code }}</span>
+              {% else %}
+                <span class="cbt-badge red">{{ req.status_code }}</span>
+              {% endif %}
+            </td>
+            <td>
+              <b class="{% if req.duration_ms >= 500 %}cbt-text-danger{% elif req.duration_ms >= 200 %}cbt-text-warning{% else %}cbt-text-primary{% endif %}">
+                {{ req.duration_ms }} ms
+              </b>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5">
+              <div class="cbt-empty-state">
+                <div class="cbt-empty-title">No Requests Recorded Yet</div>
+                <div class="cbt-empty-desc">Telemetry data will record in real time as requests are handled by the server.</div>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 350" width="900" height="350">
+    <defs>
+        <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%" filterUnits="userSpaceOnUse">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+        </filter>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#64748b"/>
+        </marker>
+        <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1e293b"/>
+            <stop offset="100%" stop-color="#0f172a"/>
+        </linearGradient>
+    </defs>
+    
+    <!-- Background -->
+    <rect width="900" height="350" fill="#f8fafc"/>
+    
+    <!-- Header Banner -->
+    <rect width="900" height="70" fill="url(#headerGrad)"/>
+    <text x="30" y="32" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="18" font-weight="800" fill="#38bdf8">PYFORGELABS ARCHITECTURE &amp; WORKFLOWS</text>
+    <text x="30" y="52" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="600" fill="#ffffff">Diagram 9: Multi-Round Recruitment Pipeline &mdash; <tspan fill="#94a3b8">Candidate Enrollment, Cutoff Decisions &amp; Promotion</tspan></text>
+    
+    <!-- Content Body -->
+    <g transform="translate(0, 80)">
+        
+    <rect x="30" y="10" width="840" height="240" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+    
+    <g transform="translate(50,30)">
+        <rect width="170" height="70" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Drive Created</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">Company, Role, Dates\nStatus: ACTIVE</text>
+    </g>
+    
+    <path d="M 220 65 L 260 65" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    
+    
+    <g transform="translate(260,30)">
+        <rect width="170" height="70" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Round 1: CBT / OA</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">Aptitude MCQ + Coding\nCutoff Evaluated</text>
+    </g>
+    
+    <path d="M 430 65 L 470 65" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    <text x="450.0" y="59.0" font-family="-apple-system,sans-serif" font-size="10" fill="#64748b" text-anchor="middle" background="#ffffff">Advance</text>
+    
+    <g transform="translate(470,30)">
+        <rect width="180" height="70" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Round 2: Technical</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">Interviewer Assigned\nRubric Scoring Panel</text>
+    </g>
+    
+    <path d="M 650 65 L 690 65" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    <text x="670.0" y="59.0" font-family="-apple-system,sans-serif" font-size="10" fill="#64748b" text-anchor="middle" background="#ffffff">Advance</text>
+    
+    <g transform="translate(690,30)">
+        <rect width="160" height="70" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Round 3: HR / Fit</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">Behavioral Evaluation\nOffer Letter Issued</text>
+    </g>
+
+    
+    <path d="M 345 100 L 345 140" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    <text x="345.0" y="114.0" font-family="-apple-system,sans-serif" font-size="10" fill="#64748b" text-anchor="middle" background="#ffffff">Fail</text>
+    
+    <g transform="translate(260,140)">
+        <rect width="170" height="50" rx="8" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#991b1b">Rejected Round 1</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">Status: FAILED</text>
+    </g>
+    
+    <path d="M 560 100 L 560 140" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    <text x="560.0" y="114.0" font-family="-apple-system,sans-serif" font-size="10" fill="#64748b" text-anchor="middle" background="#ffffff">Fail</text>
+    
+    <g transform="translate(470,140)">
+        <rect width="180" height="50" rx="8" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#991b1b">Rejected Round 2</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">Status: FAILED</text>
+    </g>
+    
+    </g>
+</svg>

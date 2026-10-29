@@ -1,0 +1,19 @@
+flowchart TD
+    START([System Anomaly / Error Event]) --> DETECT{Error Type}
+
+    DETECT -->|Client Browser Crash / Refresh| CRASH_FLOW[Student reopens browser & logs in]
+    CRASH_FLOW --> RESTORE[Restore active Attempt & timer from DB.<br/>Answers & drafts preserved.]
+
+    DETECT -->|Network Drop / LAN Glitch| NET_FLOW[Client AJAX autosave fails]
+    NET_FLOW --> RETRY_Q[Client local queue retries with exponential backoff.<br/>UI shows Amber 'Reconnecting' status.]
+
+    DETECT -->|Stale CSRF Token on Back Navigation| CSRF_FLOW[POST rejected with 403 CSRF]
+    CSRF_FLOW --> CSRF_HANDLER[Custom CSRF failure view / pageshow auto-refresh.<br/>Student clicks 'Continue' without session loss.]
+
+    DETECT -->|Code Execution Timeout / Infinite Loop| TLE_FLOW[Subprocess exceeds 2000ms CPU limit]
+    TLE_FLOW --> KILL_SIG[SIGKILL dispatched to process group.<br/>Status set to 'TIME_LIMIT_EXCEEDED'. Worker freed.]
+
+    DETECT -->|Database Lock / Concurrency Surge| LOCK_FLOW[Multiple simultaneous writes]
+    LOCK_FLOW --> WAL_RETRY[WAL mode + busy_timeout=15000.<br/>Query retries automatically without throwing SQLiteBusy.]
+
+    RESTORE & RETRY_Q & CSRF_HANDLER & KILL_SIG & WAL_RETRY --> RESUME([Normal Operation Resumed])

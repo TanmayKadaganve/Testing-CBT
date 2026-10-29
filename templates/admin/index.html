@@ -1,0 +1,224 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static cbt_admin_tags log %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block content %}
+{% get_cbt_admin_metrics as cbt_metrics %}
+
+<!-- Welcome Banner -->
+<div class="admin-welcome-banner">
+  <div class="admin-welcome-left">
+    <h2>CBT Administration Center</h2>
+    <p>Welcome back, <b>{% firstof user.get_full_name user.get_username %}</b>. Configure examination schedules, manage candidates, and oversee automated code grading.</p>
+  </div>
+  <div>
+    <a href="{% url 'dashboard_overview' %}" class="admin-quick-btn primary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+      Open Analytics Dashboard &rarr;
+    </a>
+  </div>
+</div>
+
+<!-- 6 Database-Backed Summary Cards -->
+<div class="admin-summary-grid">
+  <div class="admin-summary-card">
+    <span class="admin-summary-title">Registered Students</span>
+    <span class="admin-summary-num">{{ cbt_metrics.total_students }}</span>
+  </div>
+  <div class="admin-summary-card">
+    <span class="admin-summary-title">Total Exams</span>
+    <span class="admin-summary-num">{{ cbt_metrics.total_exams }}</span>
+  </div>
+  <div class="admin-summary-card">
+    <span class="admin-summary-title">MCQ Questions</span>
+    <span class="admin-summary-num">{{ cbt_metrics.total_mcq_questions }}</span>
+  </div>
+  <div class="admin-summary-card">
+    <span class="admin-summary-title">Coding Questions</span>
+    <span class="admin-summary-num">{{ cbt_metrics.total_coding_questions }}</span>
+  </div>
+  <div class="admin-summary-card">
+    <span class="admin-summary-title">Total Attempts</span>
+    <span class="admin-summary-num">{{ cbt_metrics.total_attempts }}</span>
+  </div>
+  <div class="admin-summary-card">
+    <span class="admin-summary-title">Code Submissions</span>
+    <span class="admin-summary-num">{{ cbt_metrics.total_submissions }}</span>
+  </div>
+</div>
+
+<!-- Quick Action Shortcuts -->
+<div class="admin-quick-actions">
+  {% if perms.portal.add_student %}
+    <a href="{% url 'admin:portal_student_add' %}" class="admin-quick-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      Add Student
+    </a>
+    <a href="{% url 'admin:portal_student_import' %}" class="admin-quick-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+      Import Students
+    </a>
+  {% endif %}
+  {% if perms.portal.add_exam %}
+    <a href="{% url 'admin:portal_exam_add' %}" class="admin-quick-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      Create Exam
+    </a>
+  {% endif %}
+  {% if perms.portal.add_question %}
+    <a href="{% url 'admin:portal_question_add' %}" class="admin-quick-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      Add MCQ
+    </a>
+  {% endif %}
+  {% if perms.portal.add_codingquestion %}
+    <a href="{% url 'admin:portal_codingquestion_add' %}" class="admin-quick-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      Add Coding Question
+    </a>
+  {% endif %}
+  <a href="{% url 'dashboard_overview' %}" class="admin-quick-btn">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+    Open Analytics Dashboard
+  </a>
+</div>
+
+<!-- Two-Column Overview & Activity Grid (Replaces Duplicate Model Tables) -->
+<div class="admin-section-grid">
+  <!-- Left column: Operational Notices & Active Examination Overview -->
+  <div style="display: flex; flex-direction: column; gap: 24px;">
+    <!-- 1. Operational Notices & Integrity Warnings -->
+    {% get_cbt_integrity_alerts as alerts %}
+    <div class="pf-card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:22px;box-shadow:0 1px 2px 0 rgba(0,0,0,0.05);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #e2e8f0;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <h2 style="margin:0;font-size:16px;font-weight:700;color:#0f172a;border:none;padding:0;">Operational Notices & Integrity Status</h2>
+        </div>
+        <a href="{% url 'dashboard_integrity' %}" style="font-size:12.5px;color:#0284c7;font-weight:600;text-decoration:none;">View Full Audit &rarr;</a>
+      </div>
+
+      {% if alerts %}
+        <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px;">
+          {% for alert in alerts %}
+            <li class="pf-alert-item severity-{{ alert.severity }}">
+              <div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                  <span class="pf-alert-badge severity-{{ alert.severity }}">
+                    {{ alert.severity }}
+                  </span>
+                  <span style="font-size:12px;font-weight:600;color:#64748b;">{{ alert.type }}</span>
+                </div>
+                <div style="font-size:13px;color:#1e293b;line-height:1.4;">{{ alert.message }}</div>
+              </div>
+              {% if alert.link %}
+                <a href="{{ alert.link }}" class="admin-quick-btn" style="padding:4px 10px;font-size:12px;flex-shrink:0;">{{ alert.action|default:"Review" }}</a>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div style="display:flex;align-items:center;gap:12px;padding:14px;background:#ecfdf5;border:1px solid rgba(16,185,129,0.3);border-radius:8px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          <div>
+            <div style="font-size:13.5px;font-weight:600;color:#065f46;">All Examinations & Schedules Verified</div>
+            <div style="font-size:12px;color:#047857;">Zero configuration anomalies detected across questions, sections, and active candidate tokens.</div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- 2. Configured Examination Assessments -->
+    {% get_cbt_active_exams as recent_exams %}
+    <div class="pf-card" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:22px;box-shadow:0 1px 2px 0 rgba(0,0,0,0.05);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #e2e8f0;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+          <h2 style="margin:0;font-size:16px;font-weight:700;color:#0f172a;border:none;padding:0;">Configured Examinations</h2>
+        </div>
+        <a href="{% url 'admin:portal_exam_changelist' %}" style="font-size:12.5px;color:#0284c7;font-weight:600;text-decoration:none;">Manage All &rarr;</a>
+      </div>
+
+      {% if recent_exams %}
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+              <th style="text-align:left;font-size:11.5px;text-transform:uppercase;color:#64748b;padding:8px 12px;font-weight:700;">Exam Title</th>
+              <th style="text-align:center;font-size:11.5px;text-transform:uppercase;color:#64748b;padding:8px 12px;font-weight:700;">Sections</th>
+              <th style="text-align:center;font-size:11.5px;text-transform:uppercase;color:#64748b;padding:8px 12px;font-weight:700;">Candidates</th>
+              <th style="text-align:right;font-size:11.5px;text-transform:uppercase;color:#64748b;padding:8px 12px;font-weight:700;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for exam in recent_exams %}
+              <tr style="border-bottom:1px solid #f1f5f9;">
+                <td style="padding:12px;font-size:13.5px;font-weight:600;color:#0f172a;">
+                  <a href="{% url 'admin:portal_exam_change' exam.id %}" style="color:#0f172a;text-decoration:none;">{{ exam.title }}</a>
+                </td>
+                <td style="text-align:center;padding:12px;font-size:13px;color:#64748b;">
+                  {{ exam.sections.count }} section{{ exam.sections.count|pluralize }}
+                </td>
+                <td style="text-align:center;padding:12px;font-size:13px;color:#64748b;">
+                  {{ exam.students.count }} student{{ exam.students.count|pluralize }}
+                </td>
+                <td style="text-align:right;padding:12px;">
+                  <a href="{% url 'admin:portal_exam_change' exam.id %}" class="admin-add-link" style="margin:0;">Configure</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p style="color:#94a3b8;font-size:13px;margin:0;padding:12px 0;">No examinations currently configured.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Right column: Recent Actions Feed -->
+  <div>
+    <div id="recent-actions-module">
+      <h2>{% translate 'Recent Actions' %}</h2>
+      {% get_admin_log 10 as admin_log for_user user %}
+      {% if not admin_log %}
+        <p style="color:#94a3b8;font-size:13px;margin:0;">{% translate 'None available' %}</p>
+      {% else %}
+        <ul class="actionlist">
+          {% for entry in admin_log %}
+            <li>
+              <div>
+                {% if entry.is_addition %}
+                  <span style="font-size:11px;font-weight:700;color:#047857;background:#ecfdf5;padding:2px 6px;border-radius:4px;">Added</span>
+                {% elif entry.is_change %}
+                  <span style="font-size:11px;font-weight:700;color:#0284c7;background:#e0f2fe;padding:2px 6px;border-radius:4px;">Changed</span>
+                {% elif entry.is_deletion %}
+                  <span style="font-size:11px;font-weight:700;color:#b91c1c;background:#fef2f2;padding:2px 6px;border-radius:4px;">Deleted</span>
+                {% endif %}
+
+                {% if entry.is_deletion or not entry.get_admin_url %}
+                  <b style="color:#1e293b;">{{ entry.object_repr }}</b>
+                {% else %}
+                  <a href="{{ entry.get_admin_url }}" style="font-weight:600;color:#0284c7;text-decoration:none;">{{ entry.object_repr }}</a>
+                {% endif %}
+              </div>
+              <div style="font-size:11.5px;color:#94a3b8;margin-top:2px;">
+                {% if entry.content_type %}
+                  {{ entry.content_type.name|capfirst }} &bull;
+                {% endif %}
+                {{ entry.action_time|date:"d M, H:i" }}
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

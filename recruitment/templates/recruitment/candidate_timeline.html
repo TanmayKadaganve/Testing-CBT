@@ -1,0 +1,134 @@
+{% extends "portal/admin_dashboard/base.html" %}
+{% block title %}Timeline — {{ timeline.enrollment.student.usn }}{% endblock %}
+
+{% block content %}
+{% with enrollment=timeline.enrollment %}
+<div class="page-header">
+  <h1>{{ enrollment.student.usn }} — {{ enrollment.student.name }}</h1>
+  <a href="{% url 'recruitment:candidate_roster' enrollment.drive.id %}" class="btn btn-outline">← Roster</a>
+</div>
+<p>Drive: <strong>{{ enrollment.drive.name }}</strong> | Status: <strong>{{ enrollment.get_status_display }}</strong>
+   | Current round: <strong>{{ enrollment.current_round.name|default:"—" }}</strong>
+   | Selected: <strong>{% if enrollment.final_selected %}Yes{% else %}No{% endif %}</strong>
+</p>
+
+<!-- Round Results -->
+<h2>Round Results</h2>
+{% if timeline.round_results %}
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Round</th><th>MCQ</th><th>Coding</th><th>Interview</th>
+      <th>Total</th><th>Max</th><th>%</th><th>Decision</th>
+      <th>Decided At</th><th>Decided By</th><th>Override</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for rr in timeline.round_results %}
+    <tr>
+      <td>{{ rr.round.name }}</td>
+      <td>{{ rr.mcq_score|default:"—" }}</td>
+      <td>{{ rr.coding_score|default:"—" }}</td>
+      <td>{{ rr.interview_score|default:"—" }}</td>
+      <td>{{ rr.total_score|default:"—" }}</td>
+      <td>{{ rr.max_score|default:"—" }}</td>
+      <td>{{ rr.percentage|default:"—" }}</td>
+      <td><span class="badge badge-{{ rr.decision|lower }}">{{ rr.display_decision }}</span></td>
+      <td>{{ rr.decided_at|date:"d M Y H:i"|default:"—" }}</td>
+      <td>{{ rr.decided_by.username|default:"system" }}</td>
+      <td>
+        {% if rr.decision != 'PENDING' %}
+        <button onclick="document.getElementById('override-{{ rr.id }}').style.display='block'" class="btn btn-sm btn-warning">Override</button>
+        <div id="override-{{ rr.id }}" style="display:none;margin-top:.5rem">
+          <form method="post" action="{% url 'recruitment:manual_override' rr.id %}">
+            {% csrf_token %}
+            <select name="new_decision">
+              <option value="PASS">Pass</option>
+              <option value="FAIL">Fail</option>
+            </select>
+            <input type="text" name="reason" placeholder="Reason (required)" required style="width:200px">
+            <button class="btn btn-sm btn-danger" type="submit">Confirm Override</button>
+          </form>
+        </div>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="text-muted">No round results yet.</p>
+{% endif %}
+
+<!-- Interview Assignments -->
+<h2>Interview Assignments</h2>
+{% if timeline.assignments %}
+<table class="data-table">
+  <thead>
+    <tr><th>Round</th><th>Interviewer</th><th>Status</th><th>Scheduled</th><th>Score</th></tr>
+  </thead>
+  <tbody>
+    {% for a in timeline.assignments %}
+    <tr>
+      <td>{{ a.round.name }}</td>
+      <td>{{ a.interviewer.get_full_name|default:a.interviewer.username }}</td>
+      <td>{{ a.get_status_display }}</td>
+      <td>{{ a.scheduled_at|date:"d M Y H:i"|default:"—" }}</td>
+      <td>{{ a.weighted_score|default:"—" }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="text-muted">No interview assignments.</p>
+{% endif %}
+
+<!-- Integrity Events -->
+<h2>Integrity Events <small class="text-muted">(indicators only — not proof of misconduct)</small></h2>
+{% if timeline.integrity_events %}
+<table class="data-table">
+  <thead>
+    <tr><th>Event</th><th>Occurred At</th><th>Reviewed</th><th>Review Note</th></tr>
+  </thead>
+  <tbody>
+    {% for ev in timeline.integrity_events %}
+    <tr>
+      <td>{{ ev.get_event_type_display }}</td>
+      <td>{{ ev.occurred_at|date:"d M Y H:i:s" }}</td>
+      <td>{% if ev.reviewed %}✅ {{ ev.reviewed_by.username }}{% else %}Pending{% endif %}</td>
+      <td>{{ ev.review_note|default:"—" }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="text-muted">No integrity events recorded.</p>
+{% endif %}
+
+<!-- Audit Log -->
+<h2>Audit History</h2>
+{% if timeline.audit_entries %}
+<table class="data-table">
+  <thead>
+    <tr><th>Timestamp</th><th>Action</th><th>Actor</th><th>Old</th><th>New</th><th>Reason</th></tr>
+  </thead>
+  <tbody>
+    {% for entry in timeline.audit_entries %}
+    <tr>
+      <td>{{ entry.timestamp|date:"d M Y H:i" }}</td>
+      <td>{{ entry.get_action_display }}</td>
+      <td>{{ entry.actor.username|default:"system" }}</td>
+      <td>{{ entry.old_value|default:"—" }}</td>
+      <td>{{ entry.new_value|default:"—" }}</td>
+      <td>{{ entry.reason|default:"—" }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="text-muted">No audit entries.</p>
+{% endif %}
+
+{% endwith %}
+{% endblock %}
+

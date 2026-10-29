@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 450" width="900" height="450">
+    <defs>
+        <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%" filterUnits="userSpaceOnUse">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+        </filter>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#64748b"/>
+        </marker>
+        <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1e293b"/>
+            <stop offset="100%" stop-color="#0f172a"/>
+        </linearGradient>
+    </defs>
+    
+    <!-- Background -->
+    <rect width="900" height="450" fill="#f8fafc"/>
+    
+    <!-- Header Banner -->
+    <rect width="900" height="70" fill="url(#headerGrad)"/>
+    <text x="30" y="32" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="18" font-weight="800" fill="#38bdf8">PYFORGELABS ARCHITECTURE &amp; WORKFLOWS</text>
+    <text x="30" y="52" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="600" fill="#ffffff">Diagram 12: Database Entity-Relationship Model &mdash; <tspan fill="#94a3b8">19 Core Relations across portal and recruitment Apps</tspan></text>
+    
+    <!-- Content Body -->
+    <g transform="translate(0, 80)">
+        
+    <rect x="30" y="10" width="840" height="340" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+    
+    <g transform="translate(50,30)">
+        <rect width="170" height="75" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Student</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">roll_number, name, email,\ndepartment, year, is_active</text>
+    </g>
+    
+    <path d="M 220 67 L 260 67" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    <text x="240.0" y="61.0" font-family="-apple-system,sans-serif" font-size="10" fill="#64748b" text-anchor="middle" background="#ffffff">1:N</text>
+    
+    <g transform="translate(260,30)">
+        <rect width="170" height="75" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Attempt</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">student_id, exam_id, score,\nstatus, start_time, end_time</text>
+    </g>
+    
+    <path d="M 430 67 L 470 67" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    <text x="450.0" y="61.0" font-family="-apple-system,sans-serif" font-size="10" fill="#64748b" text-anchor="middle" background="#ffffff">1:N</text>
+    
+    <g transform="translate(470,30)">
+        <rect width="170" height="75" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Answer</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">attempt_id, question_id,\nselected_option_id, is_correct</text>
+    </g>
+    
+    <path d="M 640 67 L 680 67" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    <text x="660.0" y="61.0" font-family="-apple-system,sans-serif" font-size="10" fill="#64748b" text-anchor="middle" background="#ffffff">1:N</text>
+    
+    <g transform="translate(680,30)">
+        <rect width="170" height="75" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Question &amp; Option</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">section_id, text, marks,\noptions (text, is_correct)</text>
+    </g>
+
+    
+    <path d="M 345 105 L 345 140" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    <text x="345.0" y="116.5" font-family="-apple-system,sans-serif" font-size="10" fill="#64748b" text-anchor="middle" background="#ffffff">1:N</text>
+    
+    <g transform="translate(260,140)">
+        <rect width="170" height="75" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">CodeDraft</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">attempt_id, question_id,\nlanguage, code, updated_at</text>
+    </g>
+    
+    <path d="M 430 177 L 470 177" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    <text x="450.0" y="171.0" font-family="-apple-system,sans-serif" font-size="10" fill="#64748b" text-anchor="middle" background="#ffffff">1:N</text>
+    
+    <g transform="translate(470,140)">
+        <rect width="170" height="75" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">CodeSubmission</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">attempt_id, question_id, code,\nstatus, score, execution_time</text>
+    </g>
+    
+    <path d="M 640 177 L 680 177" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    <text x="660.0" y="171.0" font-family="-apple-system,sans-serif" font-size="10" fill="#64748b" text-anchor="middle" background="#ffffff">1:N</text>
+    
+    <g transform="translate(680,140)">
+        <rect width="170" height="75" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">CodingQuestion</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">title, statement, constraints,\ntest_cases, starter_code</text>
+    </g>
+
+    
+    <path d="M 135 105 L 135 240" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    <text x="135.0" y="166.5" font-family="-apple-system,sans-serif" font-size="10" fill="#64748b" text-anchor="middle" background="#ffffff">1:N</text>
+    
+    <g transform="translate(50,240)">
+        <rect width="170" height="75" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">CandidateEnrollment</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">drive_id, student_id,\ncurrent_round_id, status</text>
+    </g>
+    
+    <path d="M 220 277 L 260 277" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    <text x="240.0" y="271.0" font-family="-apple-system,sans-serif" font-size="10" fill="#64748b" text-anchor="middle" background="#ffffff">1:1</text>
+    
+    <g transform="translate(260,240)">
+        <rect width="170" height="75" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">CandidatePresence</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">enrollment_id, last_heartbeat,\nis_focused, violation_count</text>
+    </g>
+    
+    <path d="M 430 277 L 470 277" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    <text x="450.0" y="271.0" font-family="-apple-system,sans-serif" font-size="10" fill="#64748b" text-anchor="middle" background="#ffffff">1:N</text>
+    
+    <g transform="translate(470,240)">
+        <rect width="170" height="75" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">RoundResult</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">enrollment_id, round_id,\nscore, decision, evaluated_by</text>
+    </g>
+    
+    <path d="M 640 277 L 680 277" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    <text x="660.0" y="271.0" font-family="-apple-system,sans-serif" font-size="10" fill="#64748b" text-anchor="middle" background="#ffffff">1:N</text>
+    
+    <g transform="translate(680,240)">
+        <rect width="170" height="75" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">RecruitmentDrive</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">title, company_name, date,\nrounds, rubrics, status</text>
+    </g>
+    
+    </g>
+</svg>

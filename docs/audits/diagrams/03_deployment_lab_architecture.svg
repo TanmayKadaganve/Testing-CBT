@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 450" width="900" height="450">
+    <defs>
+        <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%" filterUnits="userSpaceOnUse">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+        </filter>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#64748b"/>
+        </marker>
+        <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1e293b"/>
+            <stop offset="100%" stop-color="#0f172a"/>
+        </linearGradient>
+    </defs>
+    
+    <!-- Background -->
+    <rect width="900" height="450" fill="#f8fafc"/>
+    
+    <!-- Header Banner -->
+    <rect width="900" height="70" fill="url(#headerGrad)"/>
+    <text x="30" y="32" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="18" font-weight="800" fill="#38bdf8">PYFORGELABS ARCHITECTURE &amp; WORKFLOWS</text>
+    <text x="30" y="52" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="600" fill="#ffffff">Diagram 3: 50-Candidate LAN Lab Deployment &mdash; <tspan fill="#94a3b8">Offline Campus Network Topology</tspan></text>
+    
+    <!-- Content Body -->
+    <g transform="translate(0, 80)">
+        
+    <rect x="30" y="10" width="840" height="150" rx="10" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+    <text x="50" y="30" font-family="sans-serif" font-size="12" font-weight="700" fill="#0f172a">COLLEGE COMPUTER LAB (Offline LAN 192.168.1.0/24)</text>
+    
+    <g transform="translate(50,45)">
+        <rect width="145" height="95" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Lab PC 01</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">IP: 192.168.1.51\nCandidate 1</text>
+    </g>
+    
+    <g transform="translate(210,45)">
+        <rect width="145" height="95" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Lab PC 02</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">IP: 192.168.1.52\nCandidate 2</text>
+    </g>
+    
+    <g transform="translate(370,45)">
+        <rect width="145" height="95" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Lab PC 03...49</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">IP: 192.168.1.53..99\nCandidates</text>
+    </g>
+    
+    <g transform="translate(530,45)">
+        <rect width="145" height="95" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Lab PC 50</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">IP: 192.168.1.100\nCandidate 50</text>
+    </g>
+    
+    <g transform="translate(690,45)">
+        <rect width="160" height="95" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Invigilator PC</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">IP: 192.168.1.10\nDashboard / Screen</text>
+    </g>
+
+    
+    <path d="M 450 160 L 450 190" stroke="#64748b" stroke-width="1.5" stroke-dasharray="0" marker-end="url(#arrow)"/>
+    <text x="450.0" y="169.0" font-family="-apple-system,sans-serif" font-size="10" fill="#64748b" text-anchor="middle" background="#ffffff">Gigabit Ethernet (Cat6 / 1000BASE-T Switch)</text>
+
+    <rect x="30" y="190" width="840" height="150" rx="10" fill="#ede9fe" stroke="#8b5cf6" stroke-width="1.5"/>
+    <text x="50" y="210" font-family="sans-serif" font-size="12" font-weight="700" fill="#5b21b6">LOCAL HOST SERVER (Mac / Linux Lab Master: 192.168.1.5:8000)</text>
+    
+    <g transform="translate(50,230)">
+        <rect width="250" height="85" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Django 6.1.2 Web Server</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">Gunicorn / runserver\nBound to 0.0.0.0:8000</text>
+    </g>
+    
+    <g transform="translate(320,230)">
+        <rect width="250" height="85" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">Background Worker</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">run_execution_worker.py\nQueue Polling &amp; Judging</text>
+    </g>
+    
+    <g transform="translate(590,230)">
+        <rect width="260" height="85" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="16" y="24" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#0f172a">SQLite 3 WAL Database</text>
+        <text x="16" y="42" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="11" fill="#64748b">db.sqlite3 on Fast NVMe\n15s lock timeout</text>
+    </g>
+    
+    </g>
+</svg>

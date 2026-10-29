@@ -1,0 +1,123 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block breadcrumbs %}
+  <li><a href="{% url 'admin:portal_codingquestion_changelist' %}">Coding Questions</a></li>
+  <li aria-current="page">Import Coding Questions</li>
+{% endblock %}
+
+{% block content %}
+<div id="content-main" style="max-width: 900px;">
+  <!-- Instructions Card -->
+  <div class="pf-import-card">
+    <div class="pf-import-header">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="16" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+      </svg>
+      <h2>Before You Import Coding Questions</h2>
+    </div>
+    <ul class="pf-import-instructions-list">
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+        <span>Use an <b>.xlsx</b> workbook containing both the <b>Coding Questions</b> and <b>Test Cases</b> worksheets.</span>
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+        <span>Enter one row per question on the <b>Coding Questions</b> sheet, and one row per testcase on the <b>Test Cases</b> sheet. Repeat the <b>Section</b> and <b>Q No</b> on each testcase row to pair them with the appropriate question.</span>
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+        <span>Section names must match coding sections in the selected exam. Questions with candidate drafts or submissions are safely skipped to protect student examination data.</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Download Templates Toolbar -->
+  <div class="pf-import-actions">
+    <a href="{% url 'admin:portal_codingquestion_template' %}" class="pf-btn-secondary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+      <span>Download Coding Questions Workbook Template (.xlsx)</span>
+    </a>
+  </div>
+
+  <!-- Upload and Configuration Card -->
+  <div class="pf-import-card">
+    <div class="pf-import-header">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="17 8 12 3 7 8"></polyline>
+        <line x1="12" y1="3" x2="12" y2="15"></line>
+      </svg>
+      <h2>Select Exam & Workbook</h2>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="pf-alert pf-alert-error" style="margin-bottom: 16px;">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+
+      <!-- Exam Selection Field -->
+      <div style="margin-bottom: 20px;">
+        <label for="{{ form.exam.id_for_label }}" style="font-weight:600;margin-bottom:8px;display:block;">
+          {{ form.exam.label }} <span style="color:#ef4444;">*</span>
+        </label>
+        {% if form.exam.errors %}
+          <div class="pf-alert pf-alert-error" style="margin-bottom: 8px;">
+            {{ form.exam.errors }}
+          </div>
+        {% endif %}
+        <div style="max-width: 480px;">
+          {{ form.exam }}
+        </div>
+        <p class="help" style="margin-top: 6px; font-size: 12.5px; color: #64748b;">
+          Select the destination exam containing the target coding sections.
+        </p>
+      </div>
+
+      <!-- File Dropzone -->
+      <div style="margin-bottom: 20px;">
+        <label for="{{ form.file.id_for_label }}" style="font-weight:600;margin-bottom:8px;display:block;">
+          {{ form.file.label }} <span style="color:#ef4444;">*</span>
+        </label>
+        {% if form.file.errors %}
+          <div class="pf-alert pf-alert-error" style="margin-bottom: 8px;">
+            {{ form.file.errors }}
+          </div>
+        {% endif %}
+        <div class="pf-file-dropzone" id="codingQuestionDropzone">
+          <svg class="pf-file-dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
+            <path d="M12 12v9"></path>
+            <path d="m16 16-4-4-4 4"></path>
+          </svg>
+          <div class="pf-file-dropzone-text">Click to browse workbook or drag and drop here</div>
+          <div class="pf-file-dropzone-sub">Supported format: Microsoft Excel Workbook (.xlsx)</div>
+          <input type="file" name="{{ form.file.html_name }}" id="{{ form.file.id_for_label }}" accept=".xlsx,.xlsm" required>
+          <div class="pf-file-selected-name" id="codingQuestionFileName"></div>
+        </div>
+      </div>
+
+      <div class="submit-row" style="margin-top: 28px; padding: 0; background: transparent; border: none; box-shadow: none;">
+        <button type="submit" class="admin-quick-btn primary" style="padding: 10px 22px; font-size: 14px; cursor: pointer;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          Import Coding Questions
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

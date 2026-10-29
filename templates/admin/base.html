@@ -1,0 +1,131 @@
+{% load i18n static tz %}<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
+<html lang="{{ LANGUAGE_CODE|default:'en-us' }}" dir="{{ LANGUAGE_BIDI|yesno:'rtl,ltr,auto' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="{% static 'portal/images/pyforgelabs-logo.png' %}">
+  <title>{% block title %}{% endblock %} | PyForgeLabs CBT Admin</title>
+  
+  <!-- Modern PyForgeLabs Admin Design System -->
+  <link rel="stylesheet" href="{% static 'portal/admin/css/admin-theme.css' %}">
+  {% block extrastyle %}{% endblock %}
+  {% block extrahead %}{% endblock %}
+  {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE">{% endblock %}
+</head>
+
+<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}"
+  data-admin-utc-offset="{% now "Z" %}"
+  data-admin-server-timezone="{% get_current_timezone as time_zone %}{{ time_zone }}">
+
+  <div class="pf-admin-layout{% if is_popup %} pf-admin-layout-popup{% endif %}" id="container">
+    {% if not is_popup %}
+    {% include "admin/includes/sidebar.html" %}
+    <div class="pf-admin-sidebar-overlay" id="pfAdminSidebarOverlay"></div>
+    {% endif %}
+
+    <!-- Main Content Area -->
+    <div class="pf-admin-main-wrap main" id="main">
+      {% if not is_popup %}
+      <!-- Top Header Bar -->
+      <header class="pf-admin-header" id="header">
+        <div class="pf-header-left">
+          <button class="pf-mobile-toggle-btn" id="pfMobileToggleBtn" aria-label="Open navigation menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+
+          <!-- Breadcrumbs -->
+          <nav aria-label="{% translate 'Breadcrumbs' %}" class="pf-breadcrumbs-nav">
+            <ol class="pf-breadcrumbs breadcrumbs">
+              <li><a href="{% url 'admin:index' %}">Home</a></li>
+              {% block breadcrumbs %}{% endblock %}
+            </ol>
+          </nav>
+        </div>
+
+        <div class="pf-header-right">
+          <!-- System Status Pill -->
+          <a href="{% url 'dashboard_health' %}" class="pf-system-pill healthy" title="System Operational">
+            <span class="pf-system-pill-dot"></span>
+            <span>System Operational</span>
+          </a>
+
+          <!-- Analytics Dashboard Link -->
+          <a href="{% url 'dashboard_overview' %}" class="pf-dash-btn cbt-dash-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            Analytics Dashboard
+          </a>
+
+          <!-- User Menu -->
+          {% if has_permission %}
+          <div class="pf-user-profile" id="user-tools" tabindex="0">
+            <div class="pf-user-avatar">
+              {{ user.get_username|make_list|first|upper }}
+            </div>
+            <div class="pf-user-info">
+              <span class="pf-user-name">{% firstof user.get_short_name user.get_username %}</span>
+              <span class="pf-user-role">{% if user.is_superuser %}Super Admin{% else %}Staff{% endif %}</span>
+            </div>
+            <div class="pf-user-actions">
+              {% if user.has_usable_password %}
+                <a href="{% url 'admin:password_change' %}" class="pf-user-link">Password</a>
+              {% endif %}
+              <form id="logout-form" method="post" action="{% url 'admin:logout' %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="pf-logout-btn">Log Out</button>
+              </form>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </header>
+      {% endif %}
+
+      <!-- Main Page Body -->
+      <main class="pf-admin-body-content content" id="content-start">
+        {% block messages %}
+          {% if messages %}
+            <ul class="pf-messagelist messagelist">
+              {% for message in messages %}
+                <li class="pf-alert pf-alert-{{ message.tags|default:'info' }} {{ message.tags|default:'info' }}">
+                  <span>{{ message }}</span>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endblock messages %}
+
+        <div class="pf-titles-and-tools titles-and-tools">
+          <div class="pf-titles titles">
+            {% block pretitle %}{% endblock %}
+            {% block content_title %}{% if title %}<h1 class="pf-page-title">{{ title }}</h1>{% endif %}{% endblock %}
+            {% block content_subtitle %}{% if subtitle %}<h2 class="pf-page-subtitle">{{ subtitle }}</h2>{% endif %}{% endblock %}
+          </div>
+          {% block object-tools %}{% endblock %}
+        </div>
+
+        <div id="content" class="{% block coltype %}colM{% endblock %}">
+          {% block content %}
+            {{ content }}
+          {% endblock %}
+          {% block sidebar %}{% endblock %}
+        </div>
+      </main>
+    </div>
+  </div>
+
+<script src="{% static 'portal/admin/js/admin-theme.js' %}"></script>
+<script>
+  // Refresh page if loaded from browser back-forward cache to prevent stale CSRF tokens
+  window.addEventListener('pageshow', function(e) {
+    if (e.persisted) {
+      window.location.reload();
+    }
+  });
+</script>
+</body>
+</html>

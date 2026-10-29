@@ -1,0 +1,289 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="{% static 'portal/images/pyforgelabs-logo.png' %}">
+  <title>PyForgeLabs | {{ exam.title }}</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+    body { font-family: Arial, Helvetica, sans-serif; margin: 0; color: #172435; background: #f3f6fa; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px 24px;
+              background: #fff; color: #172435; padding: 12px 22px;
+              border-bottom: 1px solid #dce3eb; box-shadow: 0 2px 8px rgba(22, 47, 78, .08); }
+    .topbar > div:first-child { font-size: 19px; }
+    .topbar > div:nth-child(2) { margin-left: auto; padding: 8px 12px; color: #344256; font-size: 14px;
+                                 font-weight: 600; background: #edf4ff; border-radius: 6px; }
+    .timer { font-weight: 700; font-size: 15px; background: #f3f6fa; color: #344256;
+             padding: 8px 10px; border-radius: 6px; white-space: nowrap; }
+    #submitbtn { box-shadow: 0 2px 4px rgba(0, 0, 0, .15); }
+    #submitbtn:disabled { opacity: .72; cursor: not-allowed !important; }
+    .main { display: flex; align-items: stretch; gap: 14px; max-width: 1600px; min-height: calc(100vh - 62px); margin: 0 auto; padding: 14px; }
+    .left, .right { background: #fff; border: 1px solid #dce3eb; border-radius: 8px;
+                    box-shadow: 0 4px 16px rgba(22, 47, 78, .06); }
+    .left { flex: 1; display: flex; flex-direction: column; padding: 18px; min-height: 500px; }
+    .right { width: 270px; flex: 0 0 270px; display: flex; flex-direction: column; padding: 18px; }
+    .right > b { display: block; color: #172435; font-size: 15px; padding-bottom: 10px; border-bottom: 1px solid #e5ebf2; }
+    .qno { display: flex; justify-content: space-between; color: #172435; font-size: 14px; font-weight: 700; margin-bottom: 16px; padding: 4px 2px 12px; border-bottom: 1px solid #e5ebf2; }
+    .qtext { margin: 0 0 18px; font-size: 18px; line-height: 1.55; white-space: pre-wrap; color: #263746; }
+    .opt { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0;
+           margin: 4px 0; line-height: 1.45; }
+    .opt input { margin: 3px 0 0; accent-color: #1265d8; cursor: pointer; }
+    .opt-text { border-radius: 2px; cursor: pointer; }
+    .btns { order: 1; margin-top: auto; padding-top: 12px; border-top: 1px solid #e5ebf2; display: flex; gap: 10px; flex-wrap: wrap; }
+    .btns button, .palette-submit button { min-height: 38px; padding: 0 18px; font: 600 13px Arial, Helvetica, sans-serif;
+                   border: 1px solid #d3deeb; border-radius: 6px; cursor: pointer; transition: filter .15s, transform .15s; }
+    .btns button { color: #344256; background: #f3f6fa; border-color: #d3deeb; }
+    .btns button:hover, .palette-submit button:hover { filter: brightness(.96); transform: translateY(-1px); }
+    .btns .prev { order: 1; }
+    .btns .mark { order: 2; }
+    .btns .clear { order: 3; }
+    .btns .save { order: 4; margin-left: auto; color: #fff; background: #1265d8; border-color: #1265d8; }
+    .palette-submit button { width: 100%; color: #fff; background: #1265d8; border-color: #1265d8; }
+    .palette { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-top: 12px; }
+    .pbtn { height: 34px; border: 1px solid #d3deeb; border-radius: 4px; cursor: pointer; color: #344256; font-weight: 700;
+            background: linear-gradient(#fff, #f3f6fa); box-shadow: 0 1px 2px rgba(22, 47, 78, .08); }
+    .pbtn:hover { filter: brightness(.94); }
+    .s-notvisited { background: linear-gradient(#fff, #f3f6fa); color: #344256; }
+    .s-notanswered { background: #bf4d21; border-color: #a7421c; color: #fff; }
+    .s-answered { background: #80b947; border-color: #6d9f3b; color: #fff; }
+    .s-marked { background: #8c6bc1; border-color: #7656a8; color: #fff; }
+    .s-markedans { background: #8c6bc1; border: 3px solid #80b947; color: #fff; }
+    .legend { display: grid; grid-template-columns: 1fr 1fr; column-gap: 8px; font-size: 11px; line-height: 1.5; margin-top: 14px; color: #404a53; }
+    .legend > div { margin: 3px 0; }
+    .dot { display: inline-block; width: 13px; height: 13px; border-radius: 3px; margin-right: 5px; vertical-align: -2px; }
+    .palette-submit { position: relative; margin-top: auto; padding-top: 12px; border-top: 1px solid #e5ebf2; }
+    .palette-submit #submitnote { position: absolute; right: 0; bottom: calc(100% + 4px); margin: 0 !important;
+                                  white-space: nowrap; line-height: 14px; }
+    .center { max-width: 760px; margin: 56px auto; padding: 42px 24px; background: #fff; border: 1px solid #dce3eb;
+              border-top: 4px solid #1265d8; border-radius: 8px; box-shadow: 0 4px 16px rgba(22, 47, 78, .06); text-align: center; font-size: 18px; line-height: 1.8; }
+    #savestate { order: 0; font-size: 12px; color: #718096; margin-top: 12px; min-height: 16px; }
+    @media (max-width: 800px) {
+      .topbar { padding: 12px 16px; }
+      .topbar > div:nth-child(2) { margin-left: 0; }
+      .main { flex-direction: column; padding: 14px; }
+      .left, .right { width: 100%; flex: auto; }
+      .left { padding: 18px; }
+      .right { padding: 18px; }
+    }
+    @media (max-width: 520px) {
+      .topbar { align-items: flex-start; }
+      .topbar > div:first-child { width: 100%; }
+      .topbar > div:nth-child(2) { margin-right: auto; }
+      .timer { font-size: 14px; }
+      .main { padding: 10px; gap: 12px; }
+      .btns button { flex: 1 1 calc(50% - 10px); }
+      .center { margin: 24px 12px; padding: 28px 18px; }
+    }
+  </style>
+</head>
+<body>
+<div class="topbar">
+  <div><b>{{ exam.title }}</b>{% if section %} &mdash; {{ section.title }}{% endif %}</div>
+  <div>{{ student.name }} ({{ student.usn }})</div>
+  {% if section %}<div class="timer">Time left: <span id="timer">--:--</span></div>{% endif %}
+    {% if section and section.kind == "CODING" %}
+  <form method="post" action="{% url 'submit_exam' %}" style="margin:0;"
+        onsubmit="return confirm('Submit the exam? You cannot come back after submitting.');">
+    {% csrf_token %}
+    <button type="submit" id="submitbtn" disabled
+            style="padding:8px 16px;font-size:14px;border:0;border-radius:4px;background:#e65100;color:#fff;cursor:pointer;">Submit exam</button>
+    <span id="submitnote" style="font-size:12px;margin-left:6px;"></span>
+  </form>
+  {% endif %}
+</div>
+
+{% if not section %}
+  <div class="center">
+    <h1>Exam status</h1>
+    {% if next_section %}
+      No section is running right now.<br>
+      Next: <b>{{ next_section.title }}</b> starts at {{ next_section.start_time|date:"h:i A" }}.
+      <br><small>This page refreshes automatically.</small>
+    {% else %}
+      The exam time is over.
+    {% endif %}
+  </div>
+  <script>setTimeout(function () { location.reload(); }, 10000);</script>
+
+{% elif section.kind == "CODING" %}
+  <div class="center"><h1>Coding section</h1>This section could not be displayed here. Please refresh the page or contact the exam administrator.</div>
+
+{% else %}
+  <div class="main">
+    <div class="left">
+      <div class="qno" id="qno"></div>
+      <h1 class="qtext" id="qtext"></h1>
+      <div id="options"></div>
+      <div class="btns">
+        <button class="prev" onclick="prevQ()">Previous</button>
+        <button class="save" onclick="saveNext()">Save &amp; Next</button>
+        <button class="mark" onclick="markNext()">Mark for Review &amp; Next</button>
+        <button class="clear" onclick="clearResp()">Clear Response</button>
+      </div>
+      <div id="savestate"></div>
+    </div>
+    <div class="right">
+      <b>Question palette</b>
+      <div class="palette" id="palette"></div>
+      <div class="legend">
+        <div><span class="dot s-notvisited"></span>Not visited</div>
+        <div><span class="dot s-notanswered"></span>Not answered</div>
+        <div><span class="dot s-answered"></span>Answered</div>
+        <div><span class="dot s-marked"></span>Marked for review</div>
+        <div><span class="dot s-markedans"></span>Answered and marked for review</div>
+      </div>
+      <form method="post" action="{% url 'submit_exam' %}" class="palette-submit"
+            onsubmit="return confirm('Submit the exam? You cannot come back after submitting.');">
+        {% csrf_token %}
+        <button type="submit" id="submitbtn" disabled>Submit exam</button>
+        <span id="submitnote" style="display:block;font-size:12px;margin-top:7px;text-align:center;color:#526271;"></span>
+      </form>
+    </div>
+  </div>
+
+  {{ questions|json_script:"qdata" }}
+  <script>
+    const questions = JSON.parse(document.getElementById('qdata').textContent);
+    const SAVE_URL = "{% url 'save_answer' %}";
+    const csrf = "{{ csrf_token }}";
+    const endMs = Date.now() + {{ seconds_left }} * 1000;
+    let idx = 0;
+
+    questions.forEach(function (q) { q.visited = false; });
+
+    function status(q) {
+      if (q.review && q.selected) return 's-markedans';
+      if (q.review) return 's-marked';
+      if (q.selected) return 's-answered';
+      if (q.visited) return 's-notanswered';
+      return 's-notvisited';
+    }
+
+    function renderPalette() {
+      const p = document.getElementById('palette');
+      p.innerHTML = '';
+      questions.forEach(function (q, i) {
+        const b = document.createElement('button');
+        b.className = 'pbtn ' + status(q);
+        b.textContent = i + 1;
+        b.onclick = function () { go(i); };
+        p.appendChild(b);
+      });
+    }
+
+    function renderQuestion() {
+      const q = questions[idx];
+      q.visited = true;
+      document.getElementById('qno').textContent =
+        'Question ' + (idx + 1) + ' of ' + questions.length + '  (Marks: ' + q.marks + ')';
+      document.getElementById('qtext').textContent = q.text;
+      const box = document.getElementById('options');
+      box.innerHTML = '';
+      q.options.forEach(function (o) {
+        const option = document.createElement('div');
+        option.className = 'opt';
+        const r = document.createElement('input');
+        r.type = 'radio';
+        r.name = 'opt';
+        r.id = 'option-' + q.id + '-' + o.id;
+        r.checked = (q.selected === o.id);
+        r.onchange = function () { q.selected = o.id; save(q); renderPalette(); };
+        const label = document.createElement('label');
+        label.className = 'opt-text';
+        label.htmlFor = r.id;
+        label.textContent = o.text;
+        option.appendChild(r);
+        option.appendChild(label);
+        box.appendChild(option);
+      });
+      renderPalette();
+    }
+
+    function go(i) {
+      idx = Math.max(0, Math.min(questions.length - 1, i));
+      renderQuestion();
+    }
+
+    async function save(q, retryCount = 0) {
+      const st = document.getElementById('savestate');
+      st.style.color = '#d97706';
+      st.textContent = 'Saving response to server...';
+      try {
+        const res = await fetch(SAVE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
+          body: JSON.stringify({ question_id: q.id, option_id: q.selected, review: q.review })
+        });
+        if (res.status === 403) { location.reload(); return; }
+        const data = await res.json();
+        if (data.ok) {
+          st.style.color = '#16a34a';
+          st.textContent = 'Saved on server';
+        } else {
+          st.style.color = '#dc2626';
+          st.textContent = 'Not saved: ' + (data.error || 'please retry');
+          if (retryCount < 2) {
+            setTimeout(() => save(q, retryCount + 1), 1000);
+          }
+        }
+      } catch (e) {
+        st.style.color = '#dc2626';
+        st.textContent = 'Save failed: network disconnected (reconnecting...)';
+        if (retryCount < 3) {
+          setTimeout(() => save(q, retryCount + 1), 1500);
+        }
+      }
+    }
+
+    function saveNext() { const q = questions[idx]; q.review = false; save(q); go(idx + 1); }
+    function markNext() { const q = questions[idx]; q.review = true; save(q); go(idx + 1); }
+    function clearResp() { const q = questions[idx]; q.selected = null; save(q); renderQuestion(); }
+    function prevQ() { go(idx - 1); }
+
+    function tick() {
+      const s = Math.max(0, Math.round((endMs - Date.now()) / 1000));
+      const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+      const pad = function (n) { return String(n).padStart(2, '0'); };
+      document.getElementById('timer').textContent = pad(h) + ':' + pad(m) + ':' + pad(sec);
+      if (s <= 0) {
+        clearInterval(timerId);
+        setTimeout(function () { location.reload(); }, 1500);
+      }
+    }
+    const timerId = setInterval(tick, 1000);
+    tick();
+
+    if (questions.length) { renderQuestion(); }
+    else { document.getElementById('qtext').textContent = 'No questions in this section yet.'; }
+  </script>
+{% endif %}
+{% if section %}
+<script>
+  const submitMs = Date.now() + {{ seconds_to_submit }} * 1000;
+  function checkSubmit() {
+    const left = Math.round((submitMs - Date.now()) / 1000);
+    const b = document.getElementById('submitbtn');
+    const note = document.getElementById('submitnote');
+    if (left <= 0) {
+      b.disabled = false;
+      note.textContent = '';
+    } else {
+      b.disabled = true;
+      const m = Math.floor(left / 60), s = left % 60;
+      note.textContent = 'Unlocks in ' + m + 'm ' + s + 's';
+    }
+  }
+  setInterval(checkSubmit, 1000);
+  checkSubmit();
+</script>
+{% endif %}
+<script>
+  window.addEventListener('pageshow', function (e) {
+    if (e.persisted) { location.reload(); }
+  });
+</script>
+<script src="{% static 'portal/js/integrity_monitor.js' %}"></script>
+</body>
+</html>

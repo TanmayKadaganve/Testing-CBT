@@ -1,0 +1,34 @@
+stateDiagram-v2
+    [*] --> DriveCreated: Admin sets up Recruitment Drive
+    DriveCreated --> Round1_OA: Candidates Enrolled (Status: REGISTERED)
+    
+    state Round1_OA {
+        [*] --> CBT_Exam: Online Assessment (MCQ + Coding)
+        CBT_Exam --> AutomatedGrading: Exam Finalized
+        AutomatedGrading --> CutoffEvaluation: Progression Engine runs
+    }
+
+    Round1_OA --> Round2_Tech: Score >= Cutoff (Decision: ADVANCE)
+    Round1_OA --> Rejected_R1: Score < Cutoff (Decision: FAIL)
+    
+    state Round2_Tech {
+        [*] --> AssignInterviewer: Assign Candidate to Technical Panel
+        AssignInterviewer --> LiveInterview: Conduct Technical Interview
+        LiveInterview --> RubricScore: Panel submits Rubric Evaluation
+    }
+
+    Round2_Tech --> Round3_HR: Panel Recommends (Decision: ADVANCE)
+    Round2_Tech --> Rejected_R2: Panel Rejects (Decision: FAIL)
+    
+    state Round3_HR {
+        [*] --> HR_Evaluation: Behavioral & Fit Assessment
+        HR_Evaluation --> FinalDecision: Placement Committee Review
+    }
+
+    Round3_HR --> Offered: Decision: SELECTED (Offer Letter Issued)
+    Round3_HR --> Rejected_R3: Decision: FAIL
+    
+    Offered --> [*]
+    Rejected_R1 --> [*]
+    Rejected_R2 --> [*]
+    Rejected_R3 --> [*]

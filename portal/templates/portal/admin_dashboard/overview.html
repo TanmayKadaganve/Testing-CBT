@@ -1,0 +1,274 @@
+{% extends "portal/admin_dashboard/base.html" %}
+
+{% block title %}Overview{% endblock %}
+
+{% block breadcrumbs %}
+  <span class="cbt-breadcrumbs-separator">/</span>
+  <span class="cbt-breadcrumbs-current">Overview</span>
+{% endblock %}
+
+{% block content %}
+<div class="cbt-page-header">
+  <div class="cbt-page-title-wrap">
+    <h1>Overview Analytics</h1>
+    <p>Real-time examination statistics, student participation, and database telemetry.</p>
+  </div>
+  <div class="cbt-page-actions">
+    <a href="/admin/portal/exam/add/" target="_blank" class="cbt-btn cbt-btn-primary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      Add Exam
+    </a>
+    <a href="/admin/portal/student/import/" target="_blank" class="cbt-btn cbt-btn-secondary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+      Import Students
+    </a>
+    <a href="{% url 'dashboard_health' %}" class="cbt-btn cbt-btn-secondary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+      Health Check
+    </a>
+  </div>
+</div>
+
+<!-- 8 Summary Cards Grid -->
+<div class="cbt-metrics-grid">
+  <!-- 1. Total Students -->
+  <div class="cbt-metric-card">
+    <div class="cbt-metric-top">
+      <span class="cbt-metric-label">Total Students</span>
+      <div class="cbt-metric-icon blue">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+      </div>
+    </div>
+    <div class="cbt-metric-value">{{ metrics.total_students }}</div>
+    <div class="cbt-metric-subtext">
+      <span>{{ metrics.logged_in_students }} currently active session{% if metrics.logged_in_students != 1 %}s{% endif %}</span>
+    </div>
+  </div>
+
+  <!-- 2. Active Students -->
+  <div class="cbt-metric-card">
+    <div class="cbt-metric-top">
+      <span class="cbt-metric-label">Active Roster</span>
+      <div class="cbt-metric-icon green">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+      </div>
+    </div>
+    <div class="cbt-metric-value">{{ metrics.active_students }}</div>
+    <div class="cbt-metric-subtext">
+      <span>Eligible to log in with USN & DOB</span>
+    </div>
+  </div>
+
+  <!-- 3. Total Exams -->
+  <div class="cbt-metric-card">
+    <div class="cbt-metric-top">
+      <span class="cbt-metric-label">Total Exams</span>
+      <div class="cbt-metric-icon purple">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+      </div>
+    </div>
+    <div class="cbt-metric-value">{{ metrics.total_exams }}</div>
+    <div class="cbt-metric-subtext">
+      <span>{{ metrics.total_sections }} sections ({{ metrics.mcq_sections }} MCQ, {{ metrics.coding_sections }} Coding)</span>
+    </div>
+  </div>
+
+  <!-- 4. Total MCQ Questions -->
+  <div class="cbt-metric-card">
+    <div class="cbt-metric-top">
+      <span class="cbt-metric-label">MCQ Questions</span>
+      <div class="cbt-metric-icon indigo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+      </div>
+    </div>
+    <div class="cbt-metric-value">{{ metrics.total_mcq_questions }}</div>
+    <div class="cbt-metric-subtext">
+      <span>Configured across MCQ sections</span>
+    </div>
+  </div>
+
+  <!-- 5. Total Coding Questions -->
+  <div class="cbt-metric-card">
+    <div class="cbt-metric-top">
+      <span class="cbt-metric-label">Coding Questions</span>
+      <div class="cbt-metric-icon amber">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+      </div>
+    </div>
+    <div class="cbt-metric-value">{{ metrics.total_coding_questions }}</div>
+    <div class="cbt-metric-subtext">
+      <span>Assigned dynamically (up to 2/student)</span>
+    </div>
+  </div>
+
+  <!-- 6. Exam Attempts -->
+  <div class="cbt-metric-card">
+    <div class="cbt-metric-top">
+      <span class="cbt-metric-label">Total Attempts</span>
+      <div class="cbt-metric-icon blue">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+      </div>
+    </div>
+    <div class="cbt-metric-value">{{ metrics.total_attempts }}</div>
+    <div class="cbt-metric-subtext">
+      <span>{{ metrics.submitted_attempts }} submitted &bull; {{ metrics.in_progress_attempts }} in progress</span>
+    </div>
+  </div>
+
+  <!-- 7. Code Submissions -->
+  <div class="cbt-metric-card">
+    <div class="cbt-metric-top">
+      <span class="cbt-metric-label">Code Submissions</span>
+      <div class="cbt-metric-icon rose">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+      </div>
+    </div>
+    <div class="cbt-metric-value">{{ metrics.total_submissions }}</div>
+    <div class="cbt-metric-subtext">
+      <span>{{ metrics.accepted_submissions }} Accepted full score</span>
+    </div>
+  </div>
+
+  <!-- 8. Feedback Rating -->
+  <div class="cbt-metric-card">
+    <div class="cbt-metric-top">
+      <span class="cbt-metric-label">Avg Experience</span>
+      <div class="cbt-metric-icon amber">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+      </div>
+    </div>
+    <div class="cbt-metric-value">
+      {% if metrics.avg_experience %}{{ metrics.avg_experience }}<span style="font-size:16px;color:#94a3b8;">/5</span>{% else %}N/A{% endif %}
+    </div>
+    <div class="cbt-metric-subtext">
+      <span>Based on {{ metrics.feedback_count }} student survey response{% if metrics.feedback_count != 1 %}s{% endif %}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Charts Section -->
+<div class="cbt-charts-grid">
+  <!-- Chart 1: Exam Attempts Participation -->
+  <div class="cbt-card">
+    <div class="cbt-card-header">
+      <div>
+        <h2 class="cbt-card-title">Exam Participation</h2>
+        <div class="cbt-card-subtitle">Student attempts recorded per examination</div>
+      </div>
+    </div>
+    <div class="cbt-card-body">
+      {% if charts.exam_attempts %}
+        <div class="cbt-bar-chart">
+          {% for item in charts.exam_attempts %}
+            <div class="cbt-bar-column">
+              <span class="cbt-bar-val">{{ item.count }}</span>
+              <div class="cbt-bar-fill" data-height="{{ item.pct }}"></div>
+              <span class="cbt-bar-label" title="{{ item.title }}">{{ item.title }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="cbt-empty-state">
+          <svg class="cbt-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <div class="cbt-empty-title">No Exam Participation Recorded</div>
+          <div class="cbt-empty-desc">Attempts will appear here automatically as registered students log in and begin exams.</div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Chart 2: Question & Assessment Composition -->
+  <div class="cbt-card">
+    <div class="cbt-card-header">
+      <div>
+        <h2 class="cbt-card-title">Question Breakdown</h2>
+        <div class="cbt-card-subtitle">MCQ vs Coding distribution</div>
+      </div>
+    </div>
+    <div class="cbt-card-body">
+      {% if charts.question_types.total > 0 %}
+        <div style="display:flex;flex-direction:column;gap:16px;padding-top:10px;">
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+              <span>MCQ Questions</span>
+              <b>{{ charts.question_types.MCQ_Questions|default:metrics.total_mcq_questions }}</b>
+            </div>
+            <div style="height:10px;background:#e2e8f0;border-radius:5px;overflow:hidden;">
+              <div class="cbt-progress-fill mcq-fill" data-width="{% widthratio metrics.total_mcq_questions charts.question_types.total 100 %}"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+              <span>Coding Questions</span>
+              <b>{{ metrics.total_coding_questions }}</b>
+            </div>
+            <div style="height:10px;background:#e2e8f0;border-radius:5px;overflow:hidden;">
+              <div class="cbt-progress-fill coding-fill" data-width="{% widthratio metrics.total_coding_questions charts.question_types.total 100 %}"></div>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div class="cbt-empty-state">
+          <svg class="cbt-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <div class="cbt-empty-title">No Questions Added</div>
+          <div class="cbt-empty-desc">Create MCQ questions or import coding assessments via the sidebar to populate the pool.</div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Recent Activity Tables -->
+<div class="cbt-card">
+  <div class="cbt-card-header">
+    <div>
+      <h2 class="cbt-card-title">Recent Exam Activity</h2>
+      <div class="cbt-card-subtitle">Real-time student attempt logs and submissions</div>
+    </div>
+  </div>
+  <div class="cbt-table-responsive">
+    <table class="cbt-table">
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Exam</th>
+          <th>Started</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for att in activity.recent_attempts %}
+          <tr>
+            <td>
+              <b>{{ att.student.usn }}</b><br>
+              <span style="font-size:12px;color:#64748b;">{{ att.student.name }}</span>
+            </td>
+            <td>{{ att.exam.title }}</td>
+            <td>{{ att.started_at|date:"d M Y, H:i" }}</td>
+            <td>
+              {% if att.submitted_at %}
+                <span class="cbt-badge green">Submitted</span>
+              {% else %}
+                <span class="cbt-badge amber">In Progress</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'student_detail' att.student.id %}" class="cbt-btn cbt-btn-secondary cbt-btn-sm">View Student</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5">
+              <div class="cbt-empty-state" style="padding: 24px;">
+                <div class="cbt-empty-title">No Attempts Logged Yet</div>
+                <div class="cbt-empty-desc">Student attempts will show here once registered students sign in.</div>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
